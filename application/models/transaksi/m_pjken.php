@@ -1,8 +1,8 @@
 <?php if ( ! defined('BASEPATH')) exit('No direct script access allowed');
  
-class M_izin extends CI_Model
+class M_pjken extends CI_Model
 {    
-    static $table1      = 'fizin';
+    static $table1      = 'fpjken';
     static $table2      = 'karyawan';
     static $table3      = 'departemen';
 
@@ -16,7 +16,7 @@ class M_izin extends CI_Model
         $page   = isset($_POST['page']) ? intval($_POST['page']) : 1;
         $rows   = isset($_POST['rows']) ? intval($_POST['rows']) : 50;
         $offset = ($page-1)*$rows;      
-        $sort   = isset($_POST['sort']) ? strval($_POST['sort']) : 'fizin_id';
+        $sort   = isset($_POST['sort']) ? strval($_POST['sort']) : 'fpjken_id';
         $order  = isset($_POST['order']) ? strval($_POST['order']) : 'asc';
         
         $filterRules = isset($_POST['filterRules']) ? ($_POST['filterRules']) : '';
@@ -55,16 +55,16 @@ class M_izin extends CI_Model
         
         $this->db->select('a.*, c.departemen_nama as "c.departemen_nama", b.departemen_nama as "b.departemen_nama", d.karyawan_nama as "d.karyawan_nama"', NULL);
         $this->db->from(self::$table1.' a');
-        $this->db->join(self::$table3.' b', 'a.fizin_bagian = b.departemen_id', 'left');
+        $this->db->join(self::$table3.' b', 'a.fpjken_bagian = b.departemen_id', 'left');
         $this->db->join(self::$table3.' c', 'b.departemen_induk = c.departemen_id', 'left');
-        $this->db->join(self::$table2.' d', 'a.fizin_nik = d.karyawan_nik', 'left');
+        $this->db->join(self::$table2.' d', 'a.fpjken_nik = d.karyawan_nik', 'left');
         $this->db->where($cond, NULL, FALSE);
         $total  = $this->db->count_all_results();
         
         $this->db->select('a.*, c.departemen_nama as "c.departemen_nama", b.departemen_nama as "b.departemen_nama", d.karyawan_nama as "d.karyawan_nama"', NULL);
-        $this->db->join(self::$table3.' b', 'a.fizin_bagian = b.departemen_id', 'left');
+        $this->db->join(self::$table3.' b', 'a.fpjken_bagian = b.departemen_id', 'left');
         $this->db->join(self::$table3.' c', 'b.departemen_induk = c.departemen_id', 'left');
-        $this->db->join(self::$table2.' d', 'a.fizin_nik = d.karyawan_nik', 'left');
+        $this->db->join(self::$table2.' d', 'a.fpjken_nik = d.karyawan_nik', 'left');
         $this->db->where($cond, NULL, FALSE);        
         $this->db->order_by($sort, $order);
         $this->db->limit($rows, $offset);
@@ -83,38 +83,36 @@ class M_izin extends CI_Model
         return json_encode($result);          
     }   
         
-    function create($fizin_tanggal, $fizin_nik, $fizin_bagian, 
-                    $fizin_jenis, $fizin_dari, $fizin_sampai, $fizin_keperluan)
+    function create($fpjken_tanggal, $fpjken_nik, $fpjken_bagian, 
+                    $fpjken_pinjam, $fpjken_mobil, $fpjken_keperluan)
     {    
         return $this->db->insert(self::$table1,array(
-            'fizin_tanggal'=>$fizin_tanggal,
-            'fizin_nik'=>$fizin_nik,
-            'fizin_bagian'=>$fizin_bagian,
-            'fizin_jenis'=>$fizin_jenis,
-            'fizin_dari'=>$fizin_dari,
-            'fizin_sampai'=>$fizin_sampai,
-            'fizin_keperluan'=>$fizin_keperluan
+            'fpjken_tanggal'=>$fpjken_tanggal,
+            'fpjken_nik'=>$fpjken_nik,
+            'fpjken_bagian'=>$fpjken_bagian,
+            'fpjken_pinjam'=>$fpjken_pinjam,
+            'fpjken_mobil'=>$fpjken_mobil,
+            'fpjken_keperluan'=>$fpjken_keperluan
         ));
     }
     
-    function update($fizin_id, $fizin_tanggal, $fizin_nik, $fizin_bagian, 
-                                $fizin_jenis, $fizin_dari, $fizin_sampai, $fizin_keperluan)
+    function update($fpjken_id, $fpjken_tanggal, $fpjken_nik, $fpjken_bagian, 
+                    $fpjken_pinjam, $fpjken_mobil, $fpjken_keperluan)
     {
-        $this->db->where('fizin_id', $fizin_id);
+        $this->db->where('fpjken_id', $fpjken_id);
         return $this->db->update(self::$table1,array(
-            'fizin_tanggal'=>$fizin_tanggal,
-            'fizin_nik'=>$fizin_nik,
-            'fizin_bagian'=>$fizin_bagian,
-            'fizin_jenis'=>$fizin_jenis,
-            'fizin_dari'=>$fizin_dari,
-            'fizin_sampai'=>$fizin_sampai,
-            'fizin_keperluan'=>$fizin_keperluan
+            'fpjken_tanggal'=>$fpjken_tanggal,
+            'fpjken_nik'=>$fpjken_nik,
+            'fpjken_bagian'=>$fpjken_bagian,
+            'fpjken_pinjam'=>$fpjken_pinjam,
+            'fpjken_mobil'=>$fpjken_mobil,
+            'fpjken_keperluan'=>$fpjken_keperluan
         ));
     }
     
-    function delete($fizin_id)
+    function delete($fpjken_id)
     {
-        return $this->db->delete(self::$table1, array('fizin_id' => $fizin_id)); 
+        return $this->db->delete(self::$table1, array('fpjken_id' => $fpjken_id)); 
     }
         
     function getKaryawan()
@@ -157,4 +155,4 @@ class M_izin extends CI_Model
 }
 
 /* End of file m_ordcard.php */
-/* Location: ./application/models/transaksi/izin.php */
+/* Location: ./application/models/transaksi/pjken.php */

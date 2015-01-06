@@ -57,64 +57,63 @@
     });
 </script>
 <!-- Data Grid -->
-<table id="grid-transaksi_izin"
+<table id="grid-transaksi_pjken"
     data-options="pageSize:50, multiSort:true, remoteSort:false, rownumbers:true, singleSelect:true, 
-                fit:true, fitColumns:false, toolbar:toolbar_transaksi_izin">
+                fit:true, fitColumns:false, toolbar:toolbar_transaksi_pjken">
     <thead>
         <tr>
             <th data-options="field:'ck',checkbox:true" ></th>
-            <th data-options="field:'fizin_id'"         width="50" halign="center" align="center" sortable="true">ID</th>
-            <th data-options="field:'fizin_tanggal'"    width="100" halign="center" align="center" sortable="true">Tanggal</th>
-            <th data-options="field:'d.karyawan_nama'"        width="150" halign="center" align="center" sortable="true">Nama Karyawan</th>
+            <th data-options="field:'fpjken_id'"            width="50"  halign="center" align="center" sortable="true">ID</th>
+            <th data-options="field:'fpjken_tanggal'"       width="100" halign="center" align="center" sortable="true">Tanggal</th>
+            <th data-options="field:'d.karyawan_nama'"      width="150" halign="center" align="center" sortable="true">Nama Karyawan</th>
             <th data-options="field:'c.departemen_nama'"    width="100" halign="center" align="center" sortable="true">Departemen</th>
             <th data-options="field:'b.departemen_nama'"    width="100" halign="center" align="center" sortable="true">Bagian</th>
-            <th data-options="field:'fizin_jenis'"      width="100" halign="center" align="center" sortable="true">Jenis Izin</th>
-            <th data-options="field:'fizin_dari'"       width="150" halign="center" align="center" sortable="true">Dari</th>
-            <th data-options="field:'fizin_sampai'"     width="150" halign="center" align="center" sortable="true">Sampai</th>
-            <th data-options="field:'fizin_keperluan'"  width="150" halign="center" align="center" sortable="true">Keperluan</th>
-            <th data-options="field:'fizin_timestamp'"  width="150" halign="center" align="center" sortable="true">Tanggal Pembuatan</th>
-            <th data-options="field:'fizin_disetujui'"  width="70" halign="center" align="center" sortable="true">Disetujui</th>
-            <th data-options="field:'fizin_diketahui'"  width="70" halign="center" align="center" sortable="true">Diketahui</th>
+            <th data-options="field:'fpjken_pinjam'"        width="100" halign="center" align="center" sortable="true">Tgl. Pinjam</th>
+            <th data-options="field:'fpjken_mobil'"         width="100" halign="center" align="center" sortable="true">No. Mobil</th>
+            <th data-options="field:'fpjken_keperluan'"     width="150" halign="center" align="center" sortable="true">Keperluan</th>
+            <th data-options="field:'fpjken_timestamp'"     width="150" halign="center" align="center" sortable="true">Tanggal Pembuatan</th>
+            <th data-options="field:'fpjken_disetujui'"     width="70"  halign="center" align="center" sortable="true">Disetujui</th>
+            <th data-options="field:'fpjken_diketahui'"     width="70"  halign="center" align="center" sortable="true">Diketahui</th>
         </tr>
     </thead>
 </table>
 
 <script type="text/javascript">
-    var toolbar_transaksi_izin = [{
+    var toolbar_transaksi_pjken = [{
         text:'New',
         iconCls:'icon-new_file',
-        handler:function(){transaksiIzinCreate();}
+        handler:function(){transaksiPjkenCreate();}
     },{
         text:'Edit',
         iconCls:'icon-edit',
-        handler:function(){transaksiIzinUpdate();}
+        handler:function(){transaksiPjkenUpdate();}
     },{
         text:'Delete',
         iconCls:'icon-cancel',
-        handler:function(){transaksiIzinHapus();}
+        handler:function(){transaksiPjkenHapus();}
     },{
         text:'Refresh',
         iconCls:'icon-reload',
-        handler:function(){$('#grid-transaksi_izin').datagrid('reload');}
+        handler:function(){$('#grid-transaksi_pjken').datagrid('reload');}
     }];
     
-    $('#grid-transaksi_izin').datagrid({view:scrollview,remoteFilter:true,
-        url:'<?php echo site_url('transaksi/izin/index'); ?>?grid=true'})
+    $('#grid-transaksi_pjken').datagrid({view:scrollview,remoteFilter:true,
+        url:'<?php echo site_url('transaksi/pjken/index'); ?>?grid=true'})
         .datagrid('enableFilter');
     
-    function transaksiIzinCreate() {
-        $('#dlg-transaksi_izin').dialog({modal: true}).dialog('open').dialog('setTitle','Tambah Data');
-        $('#fm-transaksi_izin').form('clear');
-        url = '<?php echo site_url('transaksi/izin/create'); ?>';
+    function transaksiPjkenCreate() {
+        $('#dlg-transaksi_pjken').dialog({modal: true}).dialog('open').dialog('setTitle','Tambah Data');
+        $('#fm-transaksi_pjken').form('clear');
+        url = '<?php echo site_url('transaksi/pjken/create'); ?>';
         //$('#nik').textbox({disabled: false});
     }
     
-    function transaksiIzinUpdate() {
-        var row = $('#grid-transaksi_izin').datagrid('getSelected');
+    function transaksiPjkenUpdate() {
+        var row = $('#grid-transaksi_pjken').datagrid('getSelected');
         if(row){
-            $('#dlg-transaksi_izin').dialog({modal: true}).dialog('open').dialog('setTitle','Edit Data');
-            $('#fm-transaksi_izin').form('load',row);
-            url = '<?php echo site_url('transaksi/izin/update'); ?>/' + row.fizin_id;
+            $('#dlg-transaksi_pjken').dialog({modal: true}).dialog('open').dialog('setTitle','Edit Data');
+            $('#fm-transaksi_pjken').form('load',row);
+            url = '<?php echo site_url('transaksi/pjken/update'); ?>/' + row.fpjken_id;
             //$('#nik').textbox({disabled: true});
         }
         else
@@ -123,8 +122,8 @@
         }
     }
     
-    function transaksiIzinSave(){
-        $('#fm-transaksi_izin').form('submit',{
+    function transaksiPjkenSave(){
+        $('#fm-transaksi_pjken').form('submit',{
             url: url,
             onSubmit: function(){
                 return $(this).form('validate');
@@ -132,8 +131,8 @@
             success: function(result){
                 var result = eval('('+result+')');
                 if(result.success){
-                    $('#dlg-transaksi_izin').dialog('close');
-                    $('#grid-transaksi_izin').datagrid('reload');
+                    $('#dlg-transaksi_pjken').dialog('close');
+                    $('#grid-transaksi_pjken').datagrid('reload');
                     $.messager.show({
                         title: 'Info',
                         msg: 'Data Berhasil Disimpan'
@@ -148,14 +147,14 @@
         });
     }
         
-    function transaksiIzinHapus(){
-        var row = $('#grid-transaksi_izin').datagrid('getSelected');
+    function transaksiPjkenHapus(){
+        var row = $('#grid-transaksi_pjken').datagrid('getSelected');
         if (row){
-            $.messager.confirm('Konfirmasi','Anda yakin ingin menghapus izin no. '+row.fizin_id+' ?',function(r){
+            $.messager.confirm('Konfirmasi','Anda yakin ingin menghapus ID no. '+row.fpjken_id+' ?',function(r){
                 if (r){
-                    $.post('<?php echo site_url('transaksi/izin/delete'); ?>',{fizin_id:row.fizin_id},function(result){
+                    $.post('<?php echo site_url('transaksi/pjken/delete'); ?>',{fpjken_id:row.fpjken_id},function(result){
                         if (result.success){
-                            $('#grid-transaksi_izin').datagrid('reload');
+                            $('#grid-transaksi_pjken').datagrid('reload');
                             $.messager.show({
                                 title: 'Info',
                                 msg: 'Hapus Data Berhasil'
@@ -179,7 +178,7 @@
 </script>
 
 <style type="text/css">
-    #fm-transaksi_izin{
+    #fm-transaksi_pjken{
         margin:0;
         padding:10px 30px;
     }
@@ -204,50 +203,44 @@
 </style>
 
 <!-- ----------- -->
-<div id="dlg-transaksi_izin" class="easyui-dialog" style="width:600px; height:350px; padding: 10px 20px" closed="true" buttons="#dlg-buttons-transaksi_izin">
-    <form id="fm-transaksi_izin" method="post" novalidate>        
+<div id="dlg-transaksi_pjken" class="easyui-dialog" style="width:600px; height:350px; padding: 10px 20px" closed="true" buttons="#dlg-buttons-transaksi_pjken">
+    <form id="fm-transaksi_pjken" method="post" novalidate>        
         <div class="fitem">
             <label for="type">Tanggal</label>
-            <input type="text" id="fizin_tanggal" name="fizin_tanggal" class="easyui-datebox" required="true"/>
+            <input type="text" id="fpjken_tanggal" name="fpjken_tanggal" class="easyui-datebox" required="true"/>
         </div>
         <div class="fitem">
             <label for="type">Nama Karyawan</label>
-            <input type="text" id="fizin_nik" name="fizin_nik" style="width:200px;" class="easyui-combobox" required="true"
-                data-options="url:'<?php echo site_url('transaksi/izin/getKaryawan'); ?>',
+            <input type="text" id="fpjken_nik" name="fpjken_nik" style="width:200px;" class="easyui-combobox" required="true"
+                data-options="url:'<?php echo site_url('transaksi/pjken/getKaryawan'); ?>',
                 method:'get', valueField:'karyawan_nik', textField:'karyawan_nama', panelHeight:'300'" />
         </div>
         <div class="fitem">
             <label for="type">Bagian</label>
-            <input type="text" id="fizin_bagian" name="fizin_bagian" style="width:200px;" class="easyui-combobox" required="true"
-                data-options="url:'<?php echo site_url('transaksi/izin/getDept'); ?>',
+            <input type="text" id="fpjken_bagian" name="fpjken_bagian" style="width:200px;" class="easyui-combobox" required="true"
+                data-options="url:'<?php echo site_url('transaksi/pjken/getDept'); ?>',
                 method:'get', valueField:'id', textField:'bagian', groupField:'departemen', panelHeight:'300'" />
         </div>
         <div class="fitem">
-            <label for="type">Jenis Izin</label>
-            <input type="text" id="fizin_jenis" name="fizin_jenis" style="width:150px;" class="easyui-combobox" required="true"
-                data-options="url:'<?php echo site_url('transaksi/izin/enumJenis'); ?>',
-                method:'get', valueField:'data', textField:'data', panelHeight:'300'" />
+            <label for="type">Tanggal Pinjam</label>
+            <input type="text" id="fpjken_pinjam" name="fpjken_pinjam" class="easyui-datebox" required="true"/>
         </div>
         <div class="fitem">
-            <label for="type">Dari</label>
-            <input type="text" id="fizin_dari" name="fizin_dari" class="easyui-datetimebox" required="true"/>
-        </div>
-        <div class="fitem">
-            <label for="type">Sampai</label>
-            <input type="text" id="fizin_sampai" name="fizin_sampai" class="easyui-datetimebox" required="true"/>
+            <label for="type">No. Mobil</label>
+            <input type="text" id="fpjken_mobil" name="fpjken_mobil" class="easyui-textbox" required="true"/>
         </div>
         <div class="fitem">
             <label for="type">Keperluan</label>
-            <input type="text" id="fizin_keperluan" name="fizin_keperluan" style="width:350px;" class="easyui-textbox" required="true"/>
+            <input type="text" id="fpjken_keperluan" name="fpjken_keperluan" style="width:350px;" class="easyui-textbox" required="true"/>
         </div>
     </form>
 </div>
 
 <!-- Dialog Button -->
-<div id="dlg-buttons-transaksi_izin">
-    <a href="javascript:void(0)" class="easyui-linkbutton" data-options="width:75" iconCls="icon-ok" onclick="transaksiIzinSave()">Simpan</a>
-    <a href="javascript:void(0)" class="easyui-linkbutton" data-options="width:75" iconCls="icon-cancel" onclick="javascript:$('#dlg-transaksi_izin').dialog('close')">Batal</a>
+<div id="dlg-buttons-transaksi_pjken">
+    <a href="javascript:void(0)" class="easyui-linkbutton" data-options="width:75" iconCls="icon-ok" onclick="transaksiPjkenSave()">Simpan</a>
+    <a href="javascript:void(0)" class="easyui-linkbutton" data-options="width:75" iconCls="icon-cancel" onclick="javascript:$('#dlg-transaksi_pjken').dialog('close')">Batal</a>
 </div>
 
-<!-- End of file v_izin.php -->
-<!-- Location: ./application/views/transaksi/v_izin.php -->
+<!-- End of file v_pjken.php -->
+<!-- Location: ./application/views/transaksi/v_pjken.php -->
