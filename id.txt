@@ -2,9 +2,20 @@ id = buat javasript
 name = buat post data dan get data dari datagrid
 Daftar ID yang sudah dipakai di view
 =====================================
-id_induk    -> master/departemen
-bagian      -> master/departemen
+--master/departemen
+id_induk
+bagian
 
-nik         -> master/karyawan
-nama        -> master/karyawan
-bagian2     -> master/karyawan
+--master/karyawan
+nik         
+nama        
+bagian2     
+
+--transaksi/izin
+fizin_tanggal
+fizin_nik
+fizin_bagian
+fizin_jenis
+fizin_dari
+fizin_sampai
+fizin_keperluan

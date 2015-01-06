@@ -89,6 +89,9 @@ class Karyawan extends CI_Controller {
     
     function getDept()
     {
+        $auth       = new Auth();
+        $auth->restrict();
+        
         echo $this->record->getDept();
     }
                 
