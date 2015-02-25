@@ -44,7 +44,7 @@
         $('#dlg-master_karyawan').dialog({modal: true}).dialog('open').dialog('setTitle','Tambah Data');
         $('#fm-master_karyawan').form('clear');
         url = '<?php echo site_url('master/karyawan/create'); ?>';
-        $('#nik').textbox({disabled: false});
+        $('#nik').textbox({readonly: false});
     }
     
     function masterCustomerUpdate() {
@@ -53,7 +53,7 @@
             $('#dlg-master_karyawan').dialog({modal: true}).dialog('open').dialog('setTitle','Edit Data');
             $('#fm-master_karyawan').form('load',row);
             url = '<?php echo site_url('master/karyawan/update'); ?>/' + row.karyawan_nik;
-            $('#nik').textbox({disabled: true});
+            $('#nik').textbox({readonly: true});
         }
         else
         {
