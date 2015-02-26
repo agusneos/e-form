@@ -80,26 +80,41 @@
 
 <script type="text/javascript">
     var toolbar_transaksi_pjken = [{
-        text:'New',
-        iconCls:'icon-new_file',
-        handler:function(){transaksiPjkenCreate();}
+        id      : 'pjken_new',
+        text    : 'New',
+        iconCls : 'icon-new_file',
+        handler : function(){transaksiPjkenCreate();}
     },{
-        text:'Edit',
-        iconCls:'icon-edit',
-        handler:function(){transaksiPjkenUpdate();}
+        id      : 'pjken_edit',
+        text    : 'Edit',
+        iconCls : 'icon-edit',
+        handler : function(){transaksiPjkenUpdate();}
     },{
-        text:'Delete',
-        iconCls:'icon-cancel',
-        handler:function(){transaksiPjkenHapus();}
+        id      : 'pjken_delete',
+        text    : 'Delete',
+        iconCls : 'icon-cancel',
+        handler : function(){transaksiPjkenHapus();}
     },{
-        text:'Refresh',
-        iconCls:'icon-reload',
-        handler:function(){$('#grid-transaksi_pjken').datagrid('reload');}
+        text    : 'Refresh',
+        iconCls : 'icon-reload',
+        handler : function(){$('#grid-transaksi_pjken').datagrid('reload');}
     }];
     
     $('#grid-transaksi_pjken').datagrid({view:scrollview,remoteFilter:true,
         url:'<?php echo site_url('transaksi/pjken/index'); ?>?grid=true'})
-        .datagrid('enableFilter');
+        .datagrid({	
+        onLoadSuccess: function(data){
+            $('#pjken_edit').linkbutton('disable');
+            $('#pjken_delete').linkbutton('disable');
+        },
+        onClickRow: function(index,row){
+            $('#pjken_edit').linkbutton('enable');
+            $('#pjken_delete').linkbutton('enable');
+        },
+        onDblClickRow: function(index,row){
+            transaksiPjkenUpdate();
+	}
+        }).datagrid('enableFilter');
     
     function transaksiPjkenCreate() {
         $('#dlg-transaksi_pjken').dialog({modal: true}).dialog('open').dialog('setTitle','Tambah Data');

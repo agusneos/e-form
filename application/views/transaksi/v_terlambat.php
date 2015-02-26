@@ -80,26 +80,37 @@
 
 <script type="text/javascript">
     var toolbar_transaksi_terlambat = [{
-        text:'New',
-        iconCls:'icon-new_file',
-        handler:function(){transaksiTerlambatCreate();}
+        id      : 'terlambat_new',
+        text    : 'New',
+        iconCls : 'icon-new_file',
+        handler : function(){transaksiTerlambatCreate();}
     },{
-        text:'Edit',
-        iconCls:'icon-edit',
-        handler:function(){transaksiTerlambatUpdate();}
+        id      : 'terlambat_edit',
+        text    : 'Edit',
+        iconCls : 'icon-edit',
+        handler : function(){transaksiTerlambatUpdate();}
     },{
-        text:'Delete',
-        iconCls:'icon-cancel',
-        handler:function(){transaksiTerlambatHapus();}
+        id      : 'terlambat_delete',
+        text    : 'Delete',
+        iconCls : 'icon-cancel',
+        handler : function(){transaksiTerlambatHapus();}
     },{
-        text:'Refresh',
-        iconCls:'icon-reload',
-        handler:function(){$('#grid-transaksi_terlambat').datagrid('reload');}
+        text    : 'Refresh',
+        iconCls : 'icon-reload',
+        handler : function(){$('#grid-transaksi_terlambat').datagrid('reload');}
     }];
     
     $('#grid-transaksi_terlambat').datagrid({view:scrollview,remoteFilter:true,
         url:'<?php echo site_url('transaksi/terlambat/index'); ?>?grid=true'})
         .datagrid({	
+        onLoadSuccess: function(data){
+            $('#terlambat_edit').linkbutton('disable');
+            $('#terlambat_delete').linkbutton('disable');
+        },
+        onClickRow: function(index,row){
+            $('#terlambat_edit').linkbutton('enable');
+            $('#terlambat_delete').linkbutton('enable');
+        },
         onDblClickRow: function(index,row){
             transaksiTerlambatUpdate();
 	}

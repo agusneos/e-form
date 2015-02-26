@@ -57,89 +57,93 @@
     });
 </script>
 <!-- Data Grid -->
-<table id="grid-transaksi_izin"
+<table id="grid-transaksi_dl"
     data-options="pageSize:50, multiSort:true, remoteSort:false, rownumbers:true, singleSelect:true, 
-                fit:true, fitColumns:false, toolbar:toolbar_transaksi_izin">
+                fit:true, fitColumns:false, toolbar:toolbar_transaksi_dl">
     <thead>
         <tr>
             <th data-options="field:'ck',checkbox:true" ></th>
-            <th data-options="field:'fizin_id'"             width="50" halign="center" align="center" sortable="true">ID</th>
-            <th data-options="field:'fizin_tanggal'"        width="100" halign="center" align="center" sortable="true">Tanggal</th>
+            <th data-options="field:'fdl_id'"               width="50"  halign="center" align="center" sortable="true">ID</th>
+            <th data-options="field:'fdl_tanggal'"          width="100" halign="center" align="center" sortable="true">Tanggal</th>
             <th data-options="field:'d.karyawan_nama'"      width="150" halign="center" align="center" sortable="true">Nama Karyawan</th>
             <th data-options="field:'c.departemen_nama'"    width="100" halign="center" align="center" sortable="true">Departemen</th>
             <th data-options="field:'b.departemen_nama'"    width="100" halign="center" align="center" sortable="true">Bagian</th>
-            <th data-options="field:'fizin_jenis'"          width="100" halign="center" align="center" sortable="true">Jenis Izin</th>
-            <th data-options="field:'fizin_dari'"           width="150" halign="center" align="center" sortable="true">Dari</th>
-            <th data-options="field:'fizin_sampai'"         width="150" halign="center" align="center" sortable="true">Sampai</th>
-            <th data-options="field:'fizin_keperluan'"      width="150" halign="center" align="center" sortable="true">Keperluan</th>
-            <th data-options="field:'fizin_timestamp'"      width="150" halign="center" align="center" sortable="true">Tanggal Pembuatan</th>
-            <th data-options="field:'fizin_disetujui'"      width="70" halign="center" align="center" sortable="true">Disetujui</th>
-            <th data-options="field:'fizin_diketahui'"      width="70" halign="center" align="center" sortable="true">Diketahui</th>
+            <th data-options="field:'fdl_dinas'"            width="100"  halign="center" align="center" sortable="true">Dinas Luar</th>
+            <th data-options="field:'fdl_dari'"             width="100"  halign="center" align="center" sortable="true">Dari</th>
+            <th data-options="field:'fdl_sampai'"           width="100" halign="center" align="center" sortable="true">Sampai</th>
+            <th data-options="field:'fdl_jam'"              width="100" halign="center" align="center" sortable="true">Jam</th>
+            <th data-options="field:'fdl_tujuan'"           width="200" halign="center" align="center" sortable="true">Tujuan</th>
+            <th data-options="field:'fdl_bersama'"          width="200" halign="center" align="center" sortable="true">Bersama</th>
+            <th data-options="field:'fdl_keperluan'"        width="200" halign="center" align="center" sortable="true">Keperluan</th>
+            <th data-options="field:'fdl_timestamp'"        width="150" halign="center" align="center" sortable="true">Tanggal Pembuatan</th>
+            <th data-options="field:'fdl_disetujui'"        width="70"  halign="center" align="center" sortable="true">Disetujui</th>
+            <th data-options="field:'fdl_diketahui'"        width="70"  halign="center" align="center" sortable="true">Diketahui</th>
         </tr>
     </thead>
 </table>
 
 <script type="text/javascript">
-    var toolbar_transaksi_izin = [{
-        id      : 'izin_new',
+    var toolbar_transaksi_dl = [{
+        id      : 'dl_new',
         text    : 'New',
         iconCls : 'icon-new_file',
-        handler : function(){transaksiIzinCreate();}
+        handler : function(){transaksiDlCreate();}
     },{
-        id      : 'izin_edit',
+        id      : 'dl_edit',
         text    : 'Edit',
         iconCls : 'icon-edit',
-        handler : function(){transaksiIzinUpdate();}
+        handler : function(){transaksiDlUpdate();}
     },{
-        id      : 'izin_delete',
+        id      : 'dl_delete',
         text    : 'Delete',
         iconCls : 'icon-cancel',
-        handler : function(){transaksiIzinHapus();}
+        handler : function(){transaksiDlHapus();}
     },{
         text    : 'Refresh',
         iconCls : 'icon-reload',
-        handler : function(){$('#grid-transaksi_izin').datagrid('reload');}
+        handler : function(){$('#grid-transaksi_dl').datagrid('reload');}
     }];
     
-    $('#grid-transaksi_izin').datagrid({view:scrollview,remoteFilter:true,
-        url:'<?php echo site_url('transaksi/izin/index'); ?>?grid=true'})
+    $('#grid-transaksi_dl').datagrid({view:scrollview,remoteFilter:true,
+        url:'<?php echo site_url('transaksi/dl/index'); ?>?grid=true'})
         .datagrid({	
         onLoadSuccess: function(data){
-            $('#izin_edit').linkbutton('disable');
-            $('#izin_delete').linkbutton('disable');
+            $('#dl_edit').linkbutton('disable');
+            $('#dl_delete').linkbutton('disable');
         },
         onClickRow: function(index,row){
-            $('#izin_edit').linkbutton('enable');
-            $('#izin_delete').linkbutton('enable');
+            $('#dl_edit').linkbutton('enable');
+            $('#dl_delete').linkbutton('enable');
         },
         onDblClickRow: function(index,row){
-            transaksiIzinUpdate();
+            transaksiDlUpdate();
 	}
         }).datagrid('enableFilter');
     
-    function transaksiIzinCreate() {
-        $('#dlg-transaksi_izin').dialog({modal: true}).dialog('open').dialog('setTitle','Tambah Data');
-        $('#fm-transaksi_izin').form('clear');
-        url = '<?php echo site_url('transaksi/izin/create'); ?>';
+    function transaksiDlCreate() {
+        $('#dlg-transaksi_dl').dialog({modal: true}).dialog('open').dialog('setTitle','Tambah Data');
+        $('#fm-transaksi_dl').form('clear');
+        url = '<?php echo site_url('transaksi/dl/create'); ?>';
         //$('#nik').textbox({disabled: false});
     }
     
-    function transaksiIzinUpdate() {
-        var row = $('#grid-transaksi_izin').datagrid('getSelected');
-        if(row){
-            $('#dlg-transaksi_izin').dialog({modal: true}).dialog('open').dialog('setTitle','Edit Data');
-            $('#fm-transaksi_izin').form('load',row);
-            url = '<?php echo site_url('transaksi/izin/update'); ?>/' + row.fizin_id;
+    function transaksiDlUpdate() {
+        var row = $('#grid-transaksi_dl').datagrid('getSelected');
+        if(row){            
+            $('#dlg-transaksi_dl').dialog({modal: true}).dialog('open').dialog('setTitle','Edit Data');
+            $('#fm-transaksi_dl').form('load',row);
+            url = '<?php echo site_url('transaksi/dl/update'); ?>/' + row.fdl_id;
             //$('#nik').textbox({disabled: true});
         }
         else
         {
              $.messager.alert('Info','Data belum dipilih !','info');
+             //$('#dl_new').linkbutton('disable');
         }
     }
     
-    function transaksiIzinSave(){
-        $('#fm-transaksi_izin').form('submit',{
+    function transaksiDlSave(){
+        $('#fm-transaksi_dl').form('submit',{
             url: url,
             onSubmit: function(){
                 return $(this).form('validate');
@@ -147,8 +151,8 @@
             success: function(result){
                 var result = eval('('+result+')');
                 if(result.success){
-                    $('#dlg-transaksi_izin').dialog('close');
-                    $('#grid-transaksi_izin').datagrid('reload');
+                    $('#dlg-transaksi_dl').dialog('close');
+                    $('#grid-transaksi_dl').datagrid('reload');
                     $.messager.show({
                         title: 'Info',
                         msg: 'Data Berhasil Disimpan'
@@ -163,14 +167,14 @@
         });
     }
         
-    function transaksiIzinHapus(){
-        var row = $('#grid-transaksi_izin').datagrid('getSelected');
+    function transaksiDlHapus(){
+        var row = $('#grid-transaksi_dl').datagrid('getSelected');
         if (row){
-            $.messager.confirm('Konfirmasi','Anda yakin ingin menghapus izin no. '+row.fizin_id+' ?',function(r){
+            $.messager.confirm('Konfirmasi','Anda yakin ingin menghapus ID no. '+row.fdl_id+' ?',function(r){
                 if (r){
-                    $.post('<?php echo site_url('transaksi/izin/delete'); ?>',{fizin_id:row.fizin_id},function(result){
+                    $.post('<?php echo site_url('transaksi/dl/delete'); ?>',{fdl_id:row.fdl_id},function(result){
                         if (result.success){
-                            $('#grid-transaksi_izin').datagrid('reload');
+                            $('#grid-transaksi_dl').datagrid('reload');
                             $.messager.show({
                                 title: 'Info',
                                 msg: 'Hapus Data Berhasil'
@@ -194,7 +198,7 @@
 </script>
 
 <style type="text/css">
-    #fm-transaksi_izin{
+    #fm-transaksi_dl{
         margin:0;
         padding:10px 30px;
     }
@@ -219,50 +223,62 @@
 </style>
 
 <!-- ----------- -->
-<div id="dlg-transaksi_izin" class="easyui-dialog" style="width:600px; height:350px; padding: 10px 20px" closed="true" buttons="#dlg-buttons-transaksi_izin">
-    <form id="fm-transaksi_izin" method="post" novalidate>        
+<div id="dlg-transaksi_dl" class="easyui-dialog" style="width:600px; height:400px; padding: 10px 20px" closed="true" buttons="#dlg-buttons-transaksi_dl">
+    <form id="fm-transaksi_dl" method="post" novalidate>        
         <div class="fitem">
             <label for="type">Tanggal</label>
-            <input type="text" id="fizin_tanggal" name="fizin_tanggal" class="easyui-datebox" required="true"/>
+            <input type="text" id="fdl_tanggal" name="fdl_tanggal" style="width:100px;" class="easyui-datebox" required="true"/>
         </div>
         <div class="fitem">
             <label for="type">Nama Karyawan</label>
-            <input type="text" id="fizin_nik" name="fizin_nik" style="width:200px;" class="easyui-combobox" required="true"
-                data-options="url:'<?php echo site_url('transaksi/izin/getKaryawan'); ?>',
+            <input type="text" id="fdl_nik" name="fdl_nik" style="width:200px;" class="easyui-combobox" required="true"
+                data-options="url:'<?php echo site_url('transaksi/dl/getKaryawan'); ?>',
                 method:'get', valueField:'karyawan_nik', textField:'karyawan_nama', panelHeight:'300'" />
         </div>
         <div class="fitem">
             <label for="type">Bagian</label>
-            <input type="text" id="fizin_bagian" name="fizin_bagian" style="width:200px;" class="easyui-combobox" required="true"
-                data-options="url:'<?php echo site_url('transaksi/izin/getDept'); ?>',
+            <input type="text" id="fdl_bagian" name="fdl_bagian" style="width:200px;" class="easyui-combobox" required="true"
+                data-options="url:'<?php echo site_url('transaksi/dl/getDept'); ?>',
                 method:'get', valueField:'id', textField:'bagian', groupField:'departemen', panelHeight:'300'" />
         </div>
         <div class="fitem">
-            <label for="type">Jenis Izin</label>
-            <input type="text" id="fizin_jenis" name="fizin_jenis" style="width:150px;" class="easyui-combobox" required="true"
-                data-options="url:'<?php echo site_url('transaksi/izin/enumJenis'); ?>',
-                method:'get', valueField:'data', textField:'data', panelHeight:'300'" />
+            <label for="type">Dinas Luar</label>
+            <input type="text" id="fdl_dinas" name="fdl_dinas" style="width:120px;" class="easyui-combobox" required="true"
+                data-options="url:'<?php echo site_url('transaksi/dl/enumDinas'); ?>',
+                method:'get', valueField:'data', textField:'data', panelHeight:'50'" />
         </div>
         <div class="fitem">
-            <label for="type">Dari</label>
-            <input type="text" id="fizin_dari" name="fizin_dari" class="easyui-datetimebox" required="true"/>
+            <label for="type">Dari Tgl.</label>
+            <input type="text" id="fdl_dari" name="fdl_dari" style="width:100px;" class="easyui-datebox" required="true"/>
         </div>
         <div class="fitem">
-            <label for="type">Sampai</label>
-            <input type="text" id="fizin_sampai" name="fizin_sampai" class="easyui-datetimebox" required="true"/>
+            <label for="type">Sampai Tgl.</label>
+            <input type="text" id="fdl_sampai" name="fdl_sampai" style="width:100px;" class="easyui-datebox" required="true"/>
+        </div>
+        <div class="fitem">
+            <label for="type">JAM</label>
+            <input type="text" id="fdl_jam" name="fdl_jam" style="width:100px;" class="easyui-timespinner" required="true"/>
+        </div>
+        <div class="fitem">
+            <label for="type">Tujuan</label>
+            <input type="text" id="fdl_tujuan" name="fdl_tujuan" style="width:350px;" class="easyui-textbox" required="true"/>
+        </div>
+        <div class="fitem">
+            <label for="type">Bersama</label>
+            <input type="text" id="fdl_bersama" name="fdl_bersama" style="width:350px;" class="easyui-textbox" required="true"/>
         </div>
         <div class="fitem">
             <label for="type">Keperluan</label>
-            <input type="text" id="fizin_keperluan" name="fizin_keperluan" style="width:350px;" class="easyui-textbox" required="true"/>
+            <input type="text" id="fdl_keperluan" name="fdl_keperluan" style="width:350px;" class="easyui-textbox" required="true"/>
         </div>
     </form>
 </div>
 
 <!-- Dialog Button -->
-<div id="dlg-buttons-transaksi_izin">
-    <a href="javascript:void(0)" class="easyui-linkbutton" data-options="width:75" iconCls="icon-ok" onclick="transaksiIzinSave()">Simpan</a>
-    <a href="javascript:void(0)" class="easyui-linkbutton" data-options="width:75" iconCls="icon-cancel" onclick="javascript:$('#dlg-transaksi_izin').dialog('close')">Batal</a>
+<div id="dlg-buttons-transaksi_dl">
+    <a href="javascript:void(0)" class="easyui-linkbutton" data-options="width:75" iconCls="icon-ok" onclick="transaksiDlSave()">Simpan</a>
+    <a href="javascript:void(0)" class="easyui-linkbutton" data-options="width:75" iconCls="icon-cancel" onclick="javascript:$('#dlg-transaksi_dl').dialog('close')">Batal</a>
 </div>
 
-<!-- End of file v_izin.php -->
-<!-- Location: ./application/views/transaksi/v_izin.php -->
+<!-- End of file v_dl.php -->
+<!-- Location: ./application/views/transaksi/v_dl.php -->

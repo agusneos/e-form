@@ -63,43 +63,58 @@
     <thead>
         <tr>
             <th data-options="field:'ck',checkbox:true" ></th>
-            <th data-options="field:'fcuti_id'"         width="50" halign="center" align="center" sortable="true">ID</th>
-            <th data-options="field:'fcuti_tanggal'"    width="100" halign="center" align="center" sortable="true">Tanggal</th>
-            <th data-options="field:'d.karyawan_nama'"        width="150" halign="center" align="center" sortable="true">Nama Karyawan</th>
+            <th data-options="field:'fcuti_id'"             width="50" halign="center" align="center" sortable="true">ID</th>
+            <th data-options="field:'fcuti_tanggal'"        width="100" halign="center" align="center" sortable="true">Tanggal</th>
+            <th data-options="field:'d.karyawan_nama'"      width="150" halign="center" align="center" sortable="true">Nama Karyawan</th>
             <th data-options="field:'c.departemen_nama'"    width="100" halign="center" align="center" sortable="true">Departemen</th>
             <th data-options="field:'b.departemen_nama'"    width="100" halign="center" align="center" sortable="true">Bagian</th>
-            <th data-options="field:'fcuti_dari'"       width="100" halign="center" align="center" sortable="true">Dari</th>
-            <th data-options="field:'fcuti_sampai'"     width="100" halign="center" align="center" sortable="true">Sampai</th>
-            <th data-options="field:'fcuti_keperluan'"  width="150" halign="center" align="center" sortable="true">Keperluan</th>
-            <th data-options="field:'fcuti_timestamp'"  width="150" halign="center" align="center" sortable="true">Tanggal Pembuatan</th>
-            <th data-options="field:'fcuti_disetujui'"  width="70" halign="center" align="center" sortable="true">Disetujui</th>
-            <th data-options="field:'fcuti_diketahui'"  width="70" halign="center" align="center" sortable="true">Diketahui</th>
+            <th data-options="field:'fcuti_dari'"           width="100" halign="center" align="center" sortable="true">Dari</th>
+            <th data-options="field:'fcuti_sampai'"         width="100" halign="center" align="center" sortable="true">Sampai</th>
+            <th data-options="field:'fcuti_keperluan'"      width="150" halign="center" align="center" sortable="true">Keperluan</th>
+            <th data-options="field:'fcuti_timestamp'"      width="150" halign="center" align="center" sortable="true">Tanggal Pembuatan</th>
+            <th data-options="field:'fcuti_disetujui'"      width="70" halign="center" align="center" sortable="true">Disetujui</th>
+            <th data-options="field:'fcuti_diketahui'"      width="70" halign="center" align="center" sortable="true">Diketahui</th>
         </tr>
     </thead>
 </table>
 
 <script type="text/javascript">
     var toolbar_transaksi_cuti = [{
-        text:'New',
-        iconCls:'icon-new_file',
-        handler:function(){transaksiCutiCreate();}
+        id      : 'cuti_new',
+        text    : 'New',
+        iconCls : 'icon-new_file',
+        handler : function(){transaksiCutiCreate();}
     },{
-        text:'Edit',
-        iconCls:'icon-edit',
-        handler:function(){transaksiCutiUpdate();}
+        id      : 'cuti_edit',
+        text    : 'Edit',
+        iconCls : 'icon-edit',
+        handler : function(){transaksiCutiUpdate();}
     },{
-        text:'Delete',
-        iconCls:'icon-cancel',
-        handler:function(){transaksiCutiHapus();}
+        id      : 'cuti_delete',
+        text    : 'Delete',
+        iconCls : 'icon-cancel',
+        handler : function(){transaksiCutiHapus();}
     },{
-        text:'Refresh',
-        iconCls:'icon-reload',
-        handler:function(){$('#grid-transaksi_cuti').datagrid('reload');}
+        text    : 'Refresh',
+        iconCls : 'icon-reload',
+        handler : function(){$('#grid-transaksi_cuti').datagrid('reload');}
     }];
     
     $('#grid-transaksi_cuti').datagrid({view:scrollview,remoteFilter:true,
         url:'<?php echo site_url('transaksi/cuti/index'); ?>?grid=true'})
-        .datagrid('enableFilter');
+        .datagrid({	
+        onLoadSuccess: function(data){
+            $('#cuti_edit').linkbutton('disable');
+            $('#cuti_delete').linkbutton('disable');
+        },
+        onClickRow: function(index,row){
+            $('#cuti_edit').linkbutton('enable');
+            $('#cuti_delete').linkbutton('enable');
+        },
+        onDblClickRow: function(index,row){
+            transaksiCutiUpdate();
+	}
+        }).datagrid('enableFilter');
     
     function transaksiCutiCreate() {
         $('#dlg-transaksi_cuti').dialog({modal: true}).dialog('open').dialog('setTitle','Tambah Data');

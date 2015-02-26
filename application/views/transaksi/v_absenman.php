@@ -80,26 +80,37 @@
 
 <script type="text/javascript">
     var toolbar_transaksi_absenman = [{
-        text:'New',
-        iconCls:'icon-new_file',
-        handler:function(){transaksiAbsenmanCreate();}
+        id      : 'absenman_new',
+        text    : 'New',
+        iconCls : 'icon-new_file',
+        handler : function(){transaksiAbsenmanCreate();}
     },{
-        text:'Edit',
-        iconCls:'icon-edit',
-        handler:function(){transaksiAbsenmanUpdate();}
+        id      : 'absenman_edit',
+        text    : 'Edit',
+        iconCls : 'icon-edit',
+        handler : function(){transaksiAbsenmanUpdate();}
     },{
-        text:'Delete',
-        iconCls:'icon-cancel',
-        handler:function(){transaksiAbsenmanHapus();}
+        id      : 'absenman_delete',
+        text    : 'Delete',
+        iconCls : 'icon-cancel',
+        handler : function(){transaksiAbsenmanHapus();}
     },{
-        text:'Refresh',
-        iconCls:'icon-reload',
-        handler:function(){$('#grid-transaksi_absenman').datagrid('reload');}
+        text    : 'Refresh',
+        iconCls : 'icon-reload',
+        handler : function(){$('#grid-transaksi_absenman').datagrid('reload');}
     }];
     
     $('#grid-transaksi_absenman').datagrid({view:scrollview,remoteFilter:true,
         url:'<?php echo site_url('transaksi/absenman/index'); ?>?grid=true'})
         .datagrid({	
+        onLoadSuccess: function(data){
+            $('#absenman_edit').linkbutton('disable');
+            $('#absenman_delete').linkbutton('disable');
+        },
+        onClickRow: function(index,row){
+            $('#absenman_edit').linkbutton('enable');
+            $('#absenman_delete').linkbutton('enable');
+        },
         onDblClickRow: function(index,row){
             transaksiAbsenmanUpdate();
 	}

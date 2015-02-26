@@ -101,30 +101,41 @@
 <script type="text/javascript">
     
     var toolbar_transaksi_bpb = [{
-        text:'New',
-        iconCls:'icon-new_file',
-        handler:function(){transaksiBpbCreate();}
+        id      : 'bpb_new',
+        text    : 'New',
+        iconCls : 'icon-new_file',
+        handler : function(){transaksiBpbCreate();}
     },{
-        text:'Edit',
-        iconCls:'icon-edit',
-        handler:function(){transaksiBpbUpdate();}
+        id      : 'bpb_edit',
+        text    : 'Edit',
+        iconCls : 'icon-edit',
+        handler : function(){transaksiBpbUpdate();}
     },{
-        text:'Delete',
-        iconCls:'icon-cancel',
-        handler:function(){transaksiBpbHapus();}
+        id      : 'bpb_delete',
+        text    : 'Delete',
+        iconCls : 'icon-cancel',
+        handler : function(){transaksiBpbHapus();}
     },{
-        text:'Refresh',
-        iconCls:'icon-reload',
-        handler:function(){headerRefresh();}
+        id      : 'bpb_refresh',
+        text    : 'Refresh',
+        iconCls : 'icon-reload',
+        handler : function(){headerRefresh();}
     }];
     
     $('#grid-transaksi_bpb').datagrid({view:scrollview,remoteFilter:true,
         url:'<?php echo site_url('transaksi/bpb/index'); ?>?grid=true'})        
         .datagrid({
-	onClickRow: function(index,row){
+	onLoadSuccess: function(data){
+            alert();
+        },
+        onClickRow: function(index,row){
+            $('#bpb_edit').linkbutton('enable');
+            $('#bpb_delete').linkbutton('enable');
+            $('#bpb_detail_new').linkbutton('enable');
+            $('#bpb_detail_refresh').linkbutton('enable');
             nilai = row.fbpb_id;
             $('#grid-transaksi_bpb_detail').datagrid('load','<?php echo site_url('transaksi/bpb/index_detail'); ?>?grid=true&nilai='+nilai);
-	},
+	},        
         onDblClickRow: function(index,row){
             transaksiBpbUpdate();
 	},
@@ -132,12 +143,20 @@
             headerRefresh();
         }
         }).datagrid('enableFilter');
-        
+    
     function headerRefresh() {
+        $('#bpb_edit').linkbutton('disable');
+        $('#bpb_delete').linkbutton('disable');
+        $('#bpb_detail_new').linkbutton('disable');
+        $('#bpb_detail_edit').linkbutton('disable');
+        $('#bpb_detail_delete').linkbutton('disable');
+        $('#bpb_detail_refresh').linkbutton('disable');
+            
         $('#grid-transaksi_bpb').datagrid('reload');
         nilai=null;
         $('#grid-transaksi_bpb_detail').datagrid('load','<?php echo site_url('transaksi/bpb/index_detail'); ?>?grid=true&nilai='+nilai);
         $('#grid-transaksi_bpb_detail').datagrid('reload');
+        
     }
     
     function transaksiBpbCreate() {
@@ -216,25 +235,37 @@
     
     /////////////////////////////////////////////DETAIL////////////////////////////////////////////////
     var toolbar_transaksi_bpb_detail = [{
-        text:'New',
-        iconCls:'icon-new_file',
-        handler:function(){transaksiBpbDetailCreate();}
+        id      : 'bpb_detail_new',
+        text    : 'New',
+        iconCls : 'icon-new_file',
+        handler : function(){transaksiBpbDetailCreate();}
     },{
-        text:'Edit',
-        iconCls:'icon-edit',
-        handler:function(){transaksiBpbDetailUpdate();}
+        id      : 'bpb_detail_edit',
+        text    : 'Edit',
+        iconCls : 'icon-edit',
+        handler : function(){transaksiBpbDetailUpdate();}
     },{
-        text:'Delete',
-        iconCls:'icon-cancel',
-        handler:function(){transaksiBpbDetailHapus();}
+        id      : 'bpb_detail_delete',
+        text    : 'Delete',
+        iconCls : 'icon-cancel',
+        handler : function(){transaksiBpbDetailHapus();}
     },{
-        text:'Refresh',
-        iconCls:'icon-reload',
-        handler:function(){$('#grid-transaksi_bpb_detail').datagrid('reload');}
+        id      : 'bpb_detail_refresh',
+        text    : 'Refresh',
+        iconCls : 'icon-reload',
+        handler : function(){$('#grid-transaksi_bpb_detail').datagrid('reload');}
     }];
     
     $('#grid-transaksi_bpb_detail').datagrid({view:scrollview,remoteFilter:true})
         .datagrid({	
+        onLoadSuccess: function(data){
+            $('#bpb_detail_edit').linkbutton('disable');
+            $('#bpb_detail_delete').linkbutton('disable');
+        },
+        onClickRow: function(index,row){
+            $('#bpb_detail_edit').linkbutton('enable');
+            $('#bpb_detail_delete').linkbutton('enable');
+        },
         onDblClickRow: function(index,row){
             transaksiBpbDetailUpdate();
 	}
@@ -345,7 +376,7 @@
     }
     .fitem label{
         display:inline-block;
-        width:100px;
+        width:110px;
     }
     .fitem input{
         display:inline-block;
