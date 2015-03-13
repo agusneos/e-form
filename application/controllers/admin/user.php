@@ -30,8 +30,14 @@ class User extends CI_Controller {
         
         if(!isset($_POST))	
             show_404();
-
-        if($this->record->create())
+        //$this->load->helper('array');
+        $name               = addslashes($_POST['name']);
+        $username           = addslashes($_POST['username']);
+        $pass               = addslashes($_POST['password']);
+        $level              = addslashes($_POST['level']);
+        $user_departemen    = implode(',', $_POST['user_departemen']);
+                
+        if($this->record->create($name, $username, $pass, $level, $user_departemen))
         {
             echo json_encode(array('success'=>true));
         }
@@ -49,7 +55,12 @@ class User extends CI_Controller {
         if(!isset($_POST))	
             show_404();
 
-        if($this->record->update($id))
+        $name               = addslashes($_POST['name']);
+        $username           = addslashes($_POST['username']);
+        $level              = addslashes($_POST['level']);
+        $user_departemen    = implode(',', $_POST['user_departemen']);
+                
+        if($this->record->update($id, $name, $username, $level, $user_departemen))
         {
             echo json_encode(array('success'=>true));
         }
@@ -67,7 +78,9 @@ class User extends CI_Controller {
         if(!isset($_POST))	
             show_404();
 
-        if($this->record->reset($id))
+        $pass       = addslashes($_POST['password']);
+        
+        if($this->record->reset($id, $pass))
         {
             echo json_encode(array('success'=>true));
         }
@@ -94,6 +107,14 @@ class User extends CI_Controller {
         {
             echo json_encode(array('success'=>false));
         }
+    }
+    
+    function getDept()
+    {
+        $auth       = new Auth();
+        $auth->restrict();
+        
+        echo $this->record->getDept();
     }
                
 }

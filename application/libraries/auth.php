@@ -30,9 +30,12 @@ class Auth{
             // ada, maka ambil informasi dari database
             $userdata = $result->row();
             $session_data = array(
-                'id'   => $userdata->id,
-                'nama'      => $userdata->name,
-                'level'     => $userdata->level
+                'id'                => $userdata->id,
+                'nama'              => $userdata->name,
+                'level'             => $userdata->level,
+                'user_departemen'   => $userdata->user_departemen,
+                'user_disetujui'    => $userdata->user_disetujui,
+                'user_diketahui'    => $userdata->user_diketahui
             );
             // buat session
             $this->CI->session->set_userdata($session_data);

@@ -63,18 +63,21 @@
     <thead>
         <tr>
             <th data-options="field:'ck',checkbox:true" ></th>
-            <th data-options="field:'fizin_id'"             width="50" halign="center" align="center" sortable="true">ID</th>
-            <th data-options="field:'fizin_tanggal'"        width="100" halign="center" align="center" sortable="true">Tanggal</th>
-            <th data-options="field:'d.karyawan_nama'"      width="150" halign="center" align="center" sortable="true">Nama Karyawan</th>
-            <th data-options="field:'c.departemen_nama'"    width="100" halign="center" align="center" sortable="true">Departemen</th>
-            <th data-options="field:'b.departemen_nama'"    width="100" halign="center" align="center" sortable="true">Bagian</th>
-            <th data-options="field:'fizin_jenis'"          width="100" halign="center" align="center" sortable="true">Jenis Izin</th>
-            <th data-options="field:'fizin_dari'"           width="150" halign="center" align="center" sortable="true">Dari</th>
-            <th data-options="field:'fizin_sampai'"         width="150" halign="center" align="center" sortable="true">Sampai</th>
-            <th data-options="field:'fizin_keperluan'"      width="150" halign="center" align="center" sortable="true">Keperluan</th>
-            <th data-options="field:'fizin_timestamp'"      width="150" halign="center" align="center" sortable="true">Tanggal Pembuatan</th>
-            <th data-options="field:'fizin_disetujui'"      width="70" halign="center" align="center" sortable="true">Disetujui</th>
-            <th data-options="field:'fizin_diketahui'"      width="70" halign="center" align="center" sortable="true">Diketahui</th>
+            <th data-options="field:'fizin_id'"             width="50"  halign="center" align="center" sortable="true" >ID</th>
+            <th data-options="field:'fizin_tanggal'"        width="100" halign="center" align="center" sortable="true" >Tanggal</th>
+            <th data-options="field:'d.karyawan_nama'"      width="150" halign="center" align="center" sortable="true" >Nama Karyawan</th>
+            <th data-options="field:'c.departemen_nama'"    width="100" halign="center" align="center" sortable="true" >Departemen</th>
+            <th data-options="field:'b.departemen_nama'"    width="100" halign="center" align="center" sortable="true" >Bagian</th>
+            <th data-options="field:'fizin_jenis'"          width="100" halign="center" align="center" sortable="true" >Jenis Izin</th>
+            <th data-options="field:'fizin_dari'"           width="150" halign="center" align="center" sortable="true" >Dari</th>
+            <th data-options="field:'fizin_sampai'"         width="150" halign="center" align="center" sortable="true" >Sampai</th>
+            <th data-options="field:'fizin_keperluan'"      width="150" halign="center" align="center" sortable="true" >Keperluan</th>
+            <th data-options="field:'fizin_keterangan'"     width="150" halign="center" align="center" sortable="true" >Keterangan</th>
+            <th data-options="field:'e.name'"               width="70"  halign="center" align="center" sortable="true" >Disetujui</th>
+            <th data-options="field:'f.name'"               width="70"  halign="center" align="center" sortable="true" >Diketahui</th>
+            <th data-options="field:'g.name'"               width="70"  halign="center" align="center" sortable="true" >Ditolak</th>
+            <th data-options="field:'h.name'"               width="70"  halign="center" align="center" sortable="true" >Dibuat</th>
+            <th data-options="field:'fizin_timestamp'"      width="140" halign="center" align="center" sortable="true" >Tanggal Pembuatan</th>
         </tr>
     </thead>
 </table>
@@ -99,7 +102,22 @@
         text    : 'Refresh',
         iconCls : 'icon-reload',
         handler : function(){$('#grid-transaksi_izin').datagrid('reload');}
+    },{
+        id      : 'izin_disetujui',
+        handler : function(){disetujui();}
+    },{
+        id      : 'izin_ditolak',
+        handler : function(){ditolak();}
+    },{
+        id      : 'izin_diketahui',
+        handler : function(){diketahui();}
     }];
+    
+    var user        = <?php echo $this->session->userdata('id');?>;
+    var setuju      = <?php echo $this->session->userdata('user_disetujui');?>;
+    var tahu        = <?php echo $this->session->userdata('user_diketahui');?>;
+    var datasetuju  = null;
+    var datatahu    = null;
     
     $('#grid-transaksi_izin').datagrid({view:scrollview,remoteFilter:true,
         url:'<?php echo site_url('transaksi/izin/index'); ?>?grid=true'})
@@ -107,15 +125,355 @@
         onLoadSuccess: function(data){
             $('#izin_edit').linkbutton('disable');
             $('#izin_delete').linkbutton('disable');
+            $('#izin_disetujui').linkbutton({
+                text    : '',
+                iconCls : '',
+                disabled: true
+            });
+            $('#izin_diketahui').linkbutton({
+                text    : '',
+                iconCls : '',
+                disabled: true
+            });
+            $('#izin_ditolak').linkbutton({
+                text    : '',
+                iconCls : '',
+                disabled: true
+            });
         },
         onClickRow: function(index,row){
-            $('#izin_edit').linkbutton('enable');
-            $('#izin_delete').linkbutton('enable');
+            if(row['g.name'] !== null){
+                $('#izin_edit').linkbutton('disable');
+                $('#izin_delete').linkbutton('disable');
+                $('#izin_disetujui').linkbutton({
+                    text    : '',
+                    iconCls : '',
+                    disabled: true
+                });
+                $('#izin_diketahui').linkbutton({
+                    text    : '',
+                    iconCls : '',
+                    disabled: true
+                });
+                $('#izin_ditolak').linkbutton({
+                    text    : '',
+                    iconCls : '',
+                    disabled: true
+                });
+            }
+            else {
+                if(row['e.name'] === null && row['f.name'] === null){                
+                    $('#izin_edit').linkbutton('enable');
+                    $('#izin_delete').linkbutton('enable');
+                    $('#izin_diketahui').linkbutton({
+                        text    : '',
+                        iconCls : '',
+                        disabled: true
+                    });
+                    if(setuju){
+                        $('#izin_disetujui').linkbutton({
+                            text    : 'Disetujui',
+                            iconCls : 'icon-approved',
+                            disabled: false
+                        });
+                        datasetuju = 1;
+                        $('#izin_ditolak').linkbutton({
+                            text    : 'Ditolak',
+                            iconCls : 'icon-approved_denied',
+                            disabled: false
+                        });
+                    }
+                    else{
+                        $('#izin_disetujui').linkbutton({
+                            text    : '',
+                            iconCls : '',
+                            disabled: true
+                        });
+                        $('#izin_ditolak').linkbutton({
+                            text    : '',
+                            iconCls : '',
+                            disabled: true
+                        });
+                    }
+                }
+                if(row['e.name'] !== null && row['f.name'] === null){
+                    $('#izin_edit').linkbutton('disable');
+                    $('#izin_delete').linkbutton('disable');
+                    $('#izin_ditolak').linkbutton({
+                        text    : '',
+                        iconCls : '',
+                        disabled: true
+                    });
+                    if(setuju && tahu){
+                        if(row.fizin_disetujui == user){
+                            $('#izin_disetujui').linkbutton({
+                                text    : 'Batal Disetujui',
+                                iconCls : 'icon-approved_denied',
+                                disabled: false
+                            });
+                            datasetuju = 0;
+                            $('#izin_diketahui').linkbutton({
+                                text    : '',
+                                iconCls : '',
+                                disabled: true
+                            });
+                        }
+                        else{
+                            $('#izin_disetujui').linkbutton({
+                                text    : '',
+                                iconCls : '',
+                                disabled: true
+                            });
+                            $('#izin_diketahui').linkbutton({
+                                text    : 'Diketahui',
+                                iconCls : 'icon-approved',
+                                disabled: false
+                            });
+                            datatahu = 1;
+                        }
+                    }
+                    else if(setuju){
+                        $('#izin_diketahui').linkbutton({
+                            text    : '',
+                            iconCls : '',
+                            disabled: true
+                        });
+                        if(row.fizin_disetujui == user){
+                            $('#izin_disetujui').linkbutton({
+                                text    : 'Batal Disetujui',
+                                iconCls : 'icon-approved_denied',
+                                disabled: false
+                            });
+                            datasetuju = 0;
+                        }
+                        else{
+                            $('#izin_disetujui').linkbutton({
+                                text    : '',
+                                iconCls : '',
+                                disabled: true
+                            });
+                        }
+                    }
+                    else if(tahu){
+                        $('#izin_disetujui').linkbutton({
+                            text    : '',
+                            iconCls : '',
+                            disabled: true
+                        });
+                        if(row.fizin_disetujui == user){
+                            $('#izin_diketahui').linkbutton({
+                                text    : '',
+                                iconCls : '',
+                                disabled: true
+                            });
+                        }
+                        else{
+                           $('#izin_diketahui').linkbutton({
+                                text    : 'Diketahui',
+                                iconCls : 'icon-approved',
+                                disabled: false
+                            });
+                            datatahu = 1;
+                        }
+                    }
+                    else{
+                        $('#izin_diketahui').linkbutton({
+                            text    : '',
+                            iconCls : '',
+                            disabled: true
+                        });
+                        $('#izin_disetujui').linkbutton({
+                            text    : '',
+                            iconCls : '',
+                            disabled: true
+                        });
+                    }
+                }
+                if(row['e.name'] !== null && row['f.name'] !== null){
+                    $('#izin_edit').linkbutton('disable');
+                    $('#izin_delete').linkbutton('disable');
+                    $('#izin_disetujui').linkbutton({
+                        text    : '',
+                        iconCls : '',
+                        disabled: true
+                    });
+                    $('#izin_ditolak').linkbutton({
+                            text    : '',
+                            iconCls : '',
+                            disabled: true
+                        });
+                    if(tahu){
+                        if(row.fizin_diketahui == user){
+                            $('#izin_diketahui').linkbutton({
+                                text    : 'Batal Diketahui',
+                                iconCls : 'icon-approved_denied',
+                                disabled: false
+                            });
+                            datatahu = 0;
+                        }
+                        else{
+                            $('#izin_diketahui').linkbutton({
+                                text    : '',
+                                iconCls : '',
+                                disabled: true
+                            });
+                        }
+                    }
+                    else{
+                        $('#izin_diketahui').linkbutton({
+                            text    : '',
+                            iconCls : '',
+                            disabled: true
+                        });
+                    }
+                }
+            }
         },
         onDblClickRow: function(index,row){
-            transaksiIzinUpdate();
+            if(row['e.name'] === null){
+                transaksiIzinUpdate();
+            }
+	},
+        rowStyler: function(index,row){
+            if (row['e.name'] !== null && row['f.name'] !== null){
+                return 'background-color:#90EE90;color:#000;';
+            }
+            if (row['e.name'] !== null){
+                return 'background-color:#87CEFA;color:#000;';
+            }
+            if (row['g.name'] !== null){
+                return 'background-color:#FFB6C1;color:#000;';
+            }
 	}
         }).datagrid('enableFilter');
+    
+    function disetujui() {
+        var row = $('#grid-transaksi_izin').datagrid('getSelected');
+        if (row){
+            if(datasetuju === 1){
+                $.messager.confirm('Konfirmasi','Anda yakin ingin Menyetujui izin no. '+row.fizin_id+' ?',function(r){
+                    if (r){
+                        $.post('<?php echo site_url('transaksi/izin/disetujui'); ?>',{fizin_id:row.fizin_id,fizin_disetujui:user},function(result){
+                            if (result.success){
+                                $('#grid-transaksi_izin').datagrid('reload');
+                                $.messager.show({
+                                    title: 'Info',
+                                    msg: 'Update Data Berhasil'
+                                });
+                            } else {
+                                $.messager.show({
+                                    title: 'Error',
+                                    msg: 'Update Data Gagal'
+                                });
+                            }
+                        },'json');
+                    }
+                });
+            }
+            else if(datasetuju === 0){
+                $.messager.confirm('Konfirmasi','Anda yakin ingin Batal Menyetujui izin no. '+row.fizin_id+' ?',function(r){
+                    if (r){
+                        $.post('<?php echo site_url('transaksi/izin/disetujui'); ?>',{fizin_id:row.fizin_id,fizin_disetujui:0},function(result){
+                            if (result.success){
+                                $('#grid-transaksi_izin').datagrid('reload');
+                                $.messager.show({
+                                    title: 'Info',
+                                    msg: 'Update Data Berhasil'
+                                });
+                            } else {
+                                $.messager.show({
+                                    title: 'Error',
+                                    msg: 'Update Data Gagal'
+                                });
+                            }
+                        },'json');
+                    }
+                });
+            }
+        }
+        else
+        {
+             $.messager.alert('Info','Data belum dipilih !','info');
+        }
+    }
+    
+    function diketahui() {
+        var row = $('#grid-transaksi_izin').datagrid('getSelected');
+        if (row){
+            if(datatahu === 1){
+                $.messager.confirm('Konfirmasi','Anda yakin ingin Mengetahui izin no. '+row.fizin_id+' ?',function(r){
+                    if (r){
+                        $.post('<?php echo site_url('transaksi/izin/diketahui'); ?>',{fizin_id:row.fizin_id,fizin_diketahui:user},function(result){
+                            if (result.success){
+                                $('#grid-transaksi_izin').datagrid('reload');
+                                $.messager.show({
+                                    title: 'Info',
+                                    msg: 'Update Data Berhasil'
+                                });
+                            } else {
+                                $.messager.show({
+                                    title: 'Error',
+                                    msg: 'Update Data Gagal'
+                                });
+                            }
+                        },'json');
+                    }
+                });
+            }
+            else if(datatahu === 0){
+                $.messager.confirm('Konfirmasi','Anda yakin ingin Batal Mengetahui izin no. '+row.fizin_id+' ?',function(r){
+                    if (r){
+                        $.post('<?php echo site_url('transaksi/izin/diketahui'); ?>',{fizin_id:row.fizin_id,fizin_diketahui:0},function(result){
+                            if (result.success){
+                                $('#grid-transaksi_izin').datagrid('reload');
+                                $.messager.show({
+                                    title: 'Info',
+                                    msg: 'Update Data Berhasil'
+                                });
+                            } else {
+                                $.messager.show({
+                                    title: 'Error',
+                                    msg: 'Update Data Gagal'
+                                });
+                            }
+                        },'json');
+                    }
+                });
+            }
+        }
+        else
+        {
+             $.messager.alert('Info','Data belum dipilih !','info');
+        }
+    }
+    
+    function ditolak(){
+        var row = $('#grid-transaksi_izin').datagrid('getSelected');
+        if (row){
+            $.messager.prompt('Konfirmasi','Mengapa anda ingin Menolak izin no. '+row.fizin_id+' ?',function(r){
+                if (r){
+                    $.post('<?php echo site_url('transaksi/izin/ditolak'); ?>',{fizin_id:row.fizin_id,fizin_ditolak:user,fizin_keterangan:r},function(result){
+                        if (result.success){
+                            $('#grid-transaksi_izin').datagrid('reload');
+                            $.messager.show({
+                                title: 'Info',
+                                msg: 'Hapus Data Berhasil'
+                            });
+                        } else {
+                            $.messager.show({
+                                title: 'Error',
+                                msg: 'Hapus Data Gagal'
+                            });
+                        }
+                    },'json');
+                }
+            });
+        }
+        else
+        {
+             $.messager.alert('Info','Data belum dipilih !','info');
+        }
+    }
     
     function transaksiIzinCreate() {
         $('#dlg-transaksi_izin').dialog({modal: true}).dialog('open').dialog('setTitle','Tambah Data');
@@ -254,6 +612,10 @@
         <div class="fitem">
             <label for="type">Keperluan</label>
             <input type="text" id="fizin_keperluan" name="fizin_keperluan" style="width:350px;" class="easyui-textbox" required="true"/>
+        </div>
+        <div class="fitem">
+            <label for="type">Keterangan</label>
+            <input type="text" id="fizin_keterangan" name="fizin_keterangan" style="width:350px;" class="easyui-textbox" required="true"/>
         </div>
     </form>
 </div>

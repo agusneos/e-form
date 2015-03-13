@@ -89,6 +89,85 @@ class Departemen extends CI_Controller {
     {
         echo $this->record->getDept();
     }
+    
+    /////// Departemen Head /////
+    function headIndex()
+    {
+        $auth       = new Auth();
+         // mencegah user yang belum login untuk mengakses halaman ini
+        $auth->restrict();
+        
+        if (isset($_GET['grid']))
+        {
+            echo $this->record->headIndex();      
+        }
+        else 
+        {
+            $this->load->view('master/v_departemen'); 
+        }
+    } 
+    
+    function headCreate()
+    {
+        $auth       = new Auth();
+        $auth->restrict();
+        
+        if(!isset($_POST))	
+            show_404();
+        
+        $induk  = intval(addslashes($_POST['a_departemen_induk']));
+        $bagian = addslashes($_POST['a_departemen_nama']);
+        
+        if($this->record->create($induk, $bagian))
+        {
+            echo json_encode(array('success'=>true));
+        }
+        else
+        {
+            echo json_encode(array('success'=>false));
+        }
+    }     
+    
+    function headUpdate($id=null)
+    {
+        $auth       = new Auth();
+        $auth->restrict();
+        
+        if(!isset($_POST))	
+            show_404();
+        
+        $induk  = intval(addslashes($_POST['a_departemen_induk']));
+        $bagian = addslashes($_POST['a_departemen_nama']);
+        
+        if($this->record->update($id, $induk, $bagian))
+        {
+            echo json_encode(array('success'=>true));
+        }
+        else
+        {
+            echo json_encode(array('success'=>false));
+        }
+    }
+        
+    function headDelete()
+    {
+        $auth       = new Auth();
+        $auth->restrict();
+        
+        if(!isset($_POST))	
+            show_404();
+
+        $id  = intval(addslashes($_POST['id']));
+        
+        if($this->record->delete($id))
+        {
+            echo json_encode(array('success'=>true));
+        }
+        else
+        {
+            echo json_encode(array('success'=>false));
+        }
+    }
                             
 }
 

@@ -1,10 +1,65 @@
 <?php  if ( ! defined('BASEPATH')) exit('No direct script access allowed');?>
 <script type="text/javascript" src="<?=base_url('assets/easyui/datagrid-scrollview.js')?>"></script>
 <script type="text/javascript" src="<?=base_url('assets/easyui/datagrid-filter.js')?>"></script>
+<script type="text/javascript">
+    $.extend($.fn.datebox.defaults,{
+        formatter:function(date){
+            var y = date.getFullYear();
+            var m = date.getMonth()+1;
+            var d = date.getDate();
+            return y+'-'+(m<10?('0'+m):m)+'-'+(d<10?('0'+d):d);
+        },
+        parser:function(s){
+            if (!s) return new Date();
+            var ss = (s.split('-'));
+            var y = parseInt(ss[0],10);
+            var m = parseInt(ss[1],10);
+            var d = parseInt(ss[2],10);
+            if (!isNaN(y) && !isNaN(m) && !isNaN(d)){
+                return new Date(y,m-1,d);
+            } else {
+                return new Date();
+            }
+        }
+    });
+        
+    $.extend($.fn.datetimebox.defaults,{
+        formatter:function(date){
+            var h = date.getHours();
+            var M = date.getMinutes();
+            var s = date.getSeconds();
+            function formatNumber(value){
+                return (value < 10 ? '0' : '') + value;
+            }
+            var separator = $(this).datetimebox('spinner').timespinner('options').separator;
+            var r = $.fn.datebox.defaults.formatter(date) + ' ' + formatNumber(h)+separator+formatNumber(M);
+            if ($(this).datetimebox('options').showSeconds){
+                r += separator+formatNumber(s);
+            }
+            return r;
+        },
+        parser:function(s){
+            if ($.trim(s) == ''){
+                return new Date();
+            }
+            var dt = s.split(' ');
+            var d = $.fn.datebox.defaults.parser(dt[0]);
+            if (dt.length < 2){
+                return d;
+            }
+            var separator = $(this).datetimebox('spinner').timespinner('options').separator;
+            var tt = dt[1].split(separator);
+            var hour = parseInt(tt[0], 10) || 0;
+            var minute = parseInt(tt[1], 10) || 0;
+            var second = parseInt(tt[2], 10) || 0;
+            return new Date(d.getFullYear(), d.getMonth(), d.getDate(), hour, minute, second);
+        }
+    });
+</script>
 
 <!-- Data Grid -->
 <table id="grid-master_karyawan"
-    data-options="pageSize:50, multiSort:true, remoteSort:false, rownumbers:true, singleSelect:true, 
+    data-options="pageSize:50, multiSort:true, remoteSort:true, rownumbers:true, singleSelect:true, 
                 fit:true, fitColumns:true, toolbar:toolbar_master_karyawan">
     <thead>
         <tr>
@@ -19,35 +74,50 @@
 
 <script type="text/javascript">
     var toolbar_master_karyawan = [{
-        text:'New',
-        iconCls:'icon-new_file',
-        handler:function(){masterCustomerCreate();}
+        id      : 'master_karyawan-new',
+        text    : 'New',
+        iconCls : 'icon-new_file',
+        handler : function(){master_karyawanCreate();}
     },{
-        text:'Edit',
-        iconCls:'icon-edit',
-        handler:function(){masterCustomerUpdate();}
+        id      : 'master_karyawan-edit',
+        text    : 'Edit',
+        iconCls : 'icon-edit',
+        handler : function(){master_karyawanUpdate();}
     },{
-        text:'Delete',
-        iconCls:'icon-cancel',
-        handler:function(){masterCustomerHapus();}
+        id      : 'master_karyawan-delete',
+        text    : 'Delete',
+        iconCls : 'icon-cancel',
+        handler : function(){master_karyawanHapus();}
     },{
-        text:'Refresh',
-        iconCls:'icon-reload',
-        handler:function(){$('#grid-master_karyawan').datagrid('reload');}
+        text    : 'Refresh',
+        iconCls : 'icon-reload',
+        handler : function(){$('#grid-master_karyawan').datagrid('reload');}
     }];
     
     $('#grid-master_karyawan').datagrid({view:scrollview,remoteFilter:true,
         url:'<?php echo site_url('master/karyawan/index'); ?>?grid=true'})
-        .datagrid('enableFilter');
+        .datagrid({	
+        onLoadSuccess: function(data){
+            $('#master_karyawan-edit').linkbutton('disable');
+            $('#master_karyawan-delete').linkbutton('disable');
+        },
+        onClickRow: function(index,row){
+            $('#master_karyawan-edit').linkbutton('enable');
+            $('#master_karyawan-delete').linkbutton('enable');
+        },
+        onDblClickRow: function(index,row){
+            master_karyawanUpdate();
+	}
+        }).datagrid('enableFilter');
     
-    function masterCustomerCreate() {
+    function master_karyawanCreate() {
         $('#dlg-master_karyawan').dialog({modal: true}).dialog('open').dialog('setTitle','Tambah Data');
         $('#fm-master_karyawan').form('clear');
         url = '<?php echo site_url('master/karyawan/create'); ?>';
         $('#nik').textbox({readonly: false});
     }
     
-    function masterCustomerUpdate() {
+    function master_karyawanUpdate() {
         var row = $('#grid-master_karyawan').datagrid('getSelected');
         if(row){
             $('#dlg-master_karyawan').dialog({modal: true}).dialog('open').dialog('setTitle','Edit Data');
@@ -61,7 +131,7 @@
         }
     }
     
-    function masterCustomerSave(){
+    function master_karyawanSave(){
         $('#fm-master_karyawan').form('submit',{
             url: url,
             onSubmit: function(){
@@ -79,14 +149,14 @@
                 } else {
                     $.messager.show({
                         title: 'Error',
-                        msg: 'Input/Update Data Gagal, NIK Sudah Ada'
+                        msg: 'Input Data Gagal, NIK Sudah Ada'
                     });
                 }
             }
         });
     }
         
-    function masterCustomerHapus(){
+    function master_karyawanHapus(){
         var row = $('#grid-master_karyawan').datagrid('getSelected');
         if (row){
             $.messager.confirm('Konfirmasi','Anda yakin ingin menghapus Karyawan '+row.karyawan_nama+' dengan NIK '+row.karyawan_nik+' ?',function(r){
@@ -163,7 +233,7 @@
 
 <!-- Dialog Button -->
 <div id="dlg-buttons-master_karyawan">
-    <a href="javascript:void(0)" class="easyui-linkbutton" data-options="width:75" iconCls="icon-ok" onclick="masterCustomerSave()">Simpan</a>
+    <a href="javascript:void(0)" class="easyui-linkbutton" data-options="width:75" iconCls="icon-ok" onclick="master_karyawanSave()">Simpan</a>
     <a href="javascript:void(0)" class="easyui-linkbutton" data-options="width:75" iconCls="icon-cancel" onclick="javascript:$('#dlg-master_karyawan').dialog('close')">Batal</a>
 </div>
 

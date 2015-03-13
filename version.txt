@@ -2,9 +2,10 @@
 Ver 1.0
 2014-11-24
 
-Use jQuery EasyUI Ver. 1.4.1
+Use jQuery EasyUI Ver. 1.4.2
     * datagrid-filter       -> http://www.jeasyui.com/easyui/datagrid-filter.js
     * datagrid-scrollview   -> http://www.jeasyui.com/easyui/datagrid-scrollview.js
+    * jquery.edatagrid      -> http://www.jeasyui.com/easyui/jquery.edatagrid.js
 Use Excel Reader Id: reader.php 19 2007-03-13 12:42:41Z shangxiao
 Use Accounting.js Ver. 0.4.1
 Use WebcamJS Ver. 1.0

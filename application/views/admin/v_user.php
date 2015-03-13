@@ -186,6 +186,7 @@ function refresh()
             <th data-options="field:'username'" width="50" align="center" sortable="true">Username</th>
             <th data-options="field:'password'" formatter="adminUserPassword" width="50" align="center" sortable="true">Password</th>
             <th data-options="field:'level'" width="50" align="center" sortable="true">Level</th>
+            <th data-options="field:'user_departemen'" width="100" align="center" sortable="true">Departemen ID</th>
         </tr>
     </thead>
 </table>
@@ -226,6 +227,12 @@ function refresh()
             <label for="type">Level</label>
             <input type="text" name="level" class="easyui-textbox" required="true"/>
         </div>
+        <div class="fitem">
+            <label for="type">Departemen</label>
+            <input type="text" id="user_departemen" multiple name="user_departemen[]" style="width:200px;" class="easyui-combobox" required="true"
+                data-options="url:'<?php echo site_url('admin/user/getDept'); ?>',
+                method:'get', valueField:'departemen_id', textField:'departemen_nama', multiple:true, panelHeight:'300'" />
+        </div>
     </form>
 </div>
 <!-- Dialog Update Form -->
@@ -242,6 +249,12 @@ function refresh()
         <div class="fitem">
             <label for="type">Level</label>
             <input type="text" name="level" class="easyui-textbox" required="true"/>
+        </div>
+        <div class="fitem">
+            <label for="type">Departemen</label>
+            <input type="text" id="user_departemen" multiple name="user_departemen[]" style="width:200px;" class="easyui-combobox" required="true"
+                data-options="url:'<?php echo site_url('admin/user/getDept'); ?>',
+                method:'get', valueField:'departemen_id', textField:'departemen_nama', multiple:true, panelHeight:'300'" />
         </div>
     </form>
 </div>

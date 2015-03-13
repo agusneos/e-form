@@ -2,7 +2,8 @@
  
 class M_user extends CI_Model
 {    
-    static $table = 'user';
+    static $table1 = 'user';
+    static $table2 = 'departemen';
     
     public function __construct() {
         parent::__construct();
@@ -51,13 +52,13 @@ class M_user extends CI_Model
 	}
         
         $this->db->where($cond, NULL, FALSE);
-        $this->db->from(self::$table);
+        $this->db->from(self::$table1);
         $total  = $this->db->count_all_results();
         
         $this->db->where($cond, NULL, FALSE);
         $this->db->order_by($sort, $order);
         $this->db->limit($rows, $offset);
-        $query  = $this->db->get(self::$table);
+        $query  = $this->db->get(self::$table1);
                    
         $data = array();
         foreach ( $query->result() as $row )
@@ -72,43 +73,59 @@ class M_user extends CI_Model
         return json_encode($result);          
     }
     
-    function create()
+    function create($name, $username, $pass, $level, $user_departemen)
     {
         $this->load->helper('security');
-        $password = do_hash($this->input->post('password',true),'md5');
+        $password = do_hash($pass,'md5');
         
-        return $this->db->insert(self::$table,array(
-            'name'=>$this->input->post('name',true),
-            'username'=>$this->input->post('username',true),
-            'password'=>$password,
-            'level'=>$this->input->post('level',true)
+        return $this->db->insert(self::$table1,array(
+            'name'      => $name,
+            'username'  => $username,
+            'password'  => $password,
+            'level'     => $level,
+            'user_departemen'     => $user_departemen
         ));
     }
     
-    function update($id)
+    function update($id, $name, $username, $level, $user_departemen)
     {        
         $this->db->where('id', $id);
-        return $this->db->update(self::$table,array(
-            'name'=>$this->input->post('name',true),
-            'username'=>$this->input->post('username',true),
-            'level'=>$this->input->post('level',true)
+        return $this->db->update(self::$table1,array(
+            'name'      => $name,
+            'username'  => $username,
+            'level'     => $level,
+            'user_departemen'     => $user_departemen
         ));
     }
     
-    function reset($id)
+    function reset($id, $pass)
     {
         $this->load->helper('security');
-        $password = do_hash($this->input->post('password',true),'md5');
+        $password = do_hash($pass, 'md5');
         
         $this->db->where('id', $id);
-        return $this->db->update(self::$table,array(
-            'password'=>$password,            
+        return $this->db->update(self::$table1,array(
+            'password'  => $password,            
         ));
     }
    
     function delete($id)
     {
-        return $this->db->delete(self::$table, array('id' => $id)); 
+        return $this->db->delete(self::$table1, array('id' => $id)); 
+    }
+    
+    function getDept()
+    {        
+        $this->db->order_by('departemen_nama', 'asc');
+        $this->db->where('departemen_induk', '0');
+        $query  = $this->db->get(self::$table2);
+                   
+        $data = array();
+        foreach ( $query->result() as $row )
+        {
+            array_push($data, $row); 
+        }       
+        return json_encode($data);
     }
     
 }
