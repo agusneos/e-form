@@ -17,8 +17,8 @@ class M_izin extends CI_Model
         $page   = isset($_POST['page']) ? intval($_POST['page']) : 1;
         $rows   = isset($_POST['rows']) ? intval($_POST['rows']) : 50;
         $offset = ($page-1)*$rows;      
-        $sort   = isset($_POST['sort']) ? strval($_POST['sort']) : 'fizin_disetujui';
-        $order  = isset($_POST['order']) ? strval($_POST['order']) : 'asc';
+        $sort   = isset($_POST['sort']) ? strval($_POST['sort']) : 'fizin_id';
+        $order  = isset($_POST['order']) ? strval($_POST['order']) : 'desc';
         
         $filterRules = isset($_POST['filterRules']) ? ($_POST['filterRules']) : '';
 	$cond = '1=1';
@@ -68,8 +68,10 @@ class M_izin extends CI_Model
         $k          = $pecah[10];
         $aray_dept  = array($a, $b, $c, $d, $e, $f, $g, $h, $i, $j, $k);
         
-        $this->db->select('a.*, c.departemen_nama as "c.departemen_nama", b.departemen_nama as "b.departemen_nama", 
-                            d.karyawan_nama as "d.karyawan_nama", e.name as "e.name", f.name as "f.name", g.name as "g.name", h.name as "h.name"', NULL);
+        $this->db->select('a.*, c.departemen_nama as "c.departemen_nama",
+                        b.departemen_nama as "b.departemen_nama", 
+                        d.karyawan_nama as "d.karyawan_nama", e.name as "e.name", 
+                        f.name as "f.name", g.name as "g.name", h.name as "h.name"', NULL);
         $this->db->join(self::$table3.' b', 'a.fizin_bagian = b.departemen_id', 'left')
                  ->join(self::$table3.' c', 'b.departemen_induk = c.departemen_id', 'left')
                  ->join(self::$table2.' d', 'a.fizin_nik = d.karyawan_nik', 'left')
@@ -79,10 +81,13 @@ class M_izin extends CI_Model
                  ->join(self::$table4.' h', 'a.fizin_pembuat = h.id', 'left');
         $this->db->where_in('b.departemen_induk', $aray_dept);
         $this->db->where($cond, NULL, FALSE);
-        $total  = $this->db->count_all_results(self::$table1.' a');
         
-        $this->db->select('a.*, c.departemen_nama as "c.departemen_nama", b.departemen_nama as "b.departemen_nama", 
-                            d.karyawan_nama as "d.karyawan_nama", e.name as "e.name", f.name as "f.name", g.name as "g.name", h.name as "h.name"', NULL);
+        $total  = $this->db->count_all_results(self::$table1.' a');
+        //---------------------------------------------------------//
+        $this->db->select('a.*, c.departemen_nama as "c.departemen_nama",
+                        b.departemen_nama as "b.departemen_nama", 
+                        d.karyawan_nama as "d.karyawan_nama", e.name as "e.name", 
+                        f.name as "f.name", g.name as "g.name", h.name as "h.name"', NULL);
         $this->db->join(self::$table3.' b', 'a.fizin_bagian = b.departemen_id', 'left')
                  ->join(self::$table3.' c', 'b.departemen_induk = c.departemen_id', 'left')
                  ->join(self::$table2.' d', 'a.fizin_nik = d.karyawan_nik', 'left')
@@ -91,7 +96,8 @@ class M_izin extends CI_Model
                  ->join(self::$table4.' g', 'a.fizin_ditolak = g.id', 'left')
                  ->join(self::$table4.' h', 'a.fizin_pembuat = h.id', 'left');
         $this->db->where_in('b.departemen_induk', $aray_dept);
-        $this->db->where($cond, NULL, FALSE);        
+        $this->db->where($cond, NULL, FALSE); 
+        
         $this->db->order_by($sort, $order);
         $this->db->limit($rows, $offset);        
         $query  = $this->db->get(self::$table1.' a');
@@ -109,8 +115,9 @@ class M_izin extends CI_Model
         return json_encode($result);          
     }   
         
-    function create($fizin_tanggal, $fizin_nik, $fizin_bagian, $user_id, $fizin_keterangan,
-                    $fizin_jenis, $fizin_dari, $fizin_sampai, $fizin_keperluan)
+    function create($fizin_tanggal, $fizin_nik, $fizin_bagian,
+                    $fizin_jenis, $fizin_dari, $fizin_sampai, $fizin_keperluan,
+                    $fizin_keterangan, $user_id)
     {    
         return $this->db->insert(self::$table1,array(
             'fizin_tanggal'     => $fizin_tanggal,
@@ -125,8 +132,9 @@ class M_izin extends CI_Model
         ));
     }
     
-    function update($fizin_id, $fizin_tanggal, $fizin_nik, $fizin_bagian, $fizin_keterangan,
-                                $fizin_jenis, $fizin_dari, $fizin_sampai, $fizin_keperluan)
+    function update($fizin_id, $fizin_tanggal, $fizin_nik, $fizin_bagian,
+                    $fizin_jenis, $fizin_dari, $fizin_sampai, $fizin_keperluan,
+                    $fizin_keterangan)
     {
         $this->db->where('fizin_id', $fizin_id);
         return $this->db->update(self::$table1,array(
@@ -137,7 +145,7 @@ class M_izin extends CI_Model
             'fizin_dari'        => $fizin_dari,
             'fizin_sampai'      => $fizin_sampai,
             'fizin_keperluan'   => $fizin_keperluan,
-            'fizin_keterangan'  => $fizin_keterangan,
+            'fizin_keterangan'  => $fizin_keterangan
         ));
     }
     
@@ -146,10 +154,29 @@ class M_izin extends CI_Model
         return $this->db->delete(self::$table1, array('fizin_id' => $fizin_id)); 
     }
         
-    function getKaryawan()
+    function getKaryawan($dept=null, $q)
     {
+        $pecah      = explode(',', $dept);
+        $a          = $pecah[0];
+        $b          = $pecah[1];
+        $c          = $pecah[2];
+        $d          = $pecah[3];
+        $e          = $pecah[4];
+        $f          = $pecah[5];
+        $g          = $pecah[6];
+        $h          = $pecah[7];
+        $i          = $pecah[8];
+        $j          = $pecah[9];
+        $k          = $pecah[10];
+        $aray_dept  = array($a, $b, $c, $d, $e, $f, $g, $h, $i, $j, $k);
+        
+        $this->db->select('karyawan_nik, karyawan_nama, karyawan_bagian, c.departemen_nama as "c.departemen_nama", b.departemen_nama as "b.departemen_nama"', NULL);
+        $this->db->join(self::$table3.' b', 'a.karyawan_bagian = b.departemen_id', 'left')
+                 ->join(self::$table3.' c', 'b.departemen_induk = c.departemen_id', 'left');
+        $this->db->where_in('b.departemen_induk', $aray_dept);
+        $this->db->like('karyawan_nama', $q);
         $this->db->order_by('karyawan_nama', 'asc');
-        $query  = $this->db->get(self::$table2);
+        $query  = $this->db->get(self::$table2.' a');
                    
         $data = array();
         foreach ( $query->result() as $row )
@@ -164,8 +191,8 @@ class M_izin extends CI_Model
         $this->db->select('a.departemen_id as id, b.departemen_nama as departemen, a.departemen_nama as bagian');
         $this->db->join(self::$table3.' b', 'a.departemen_induk = b.departemen_id', 'left');
         $this->db->where('a.departemen_induk > 0');
-        $this->db->order_by('a.departemen_induk', 'asc');
-        $this->db->order_by('a.departemen_nama', 'asc');
+        $this->db->order_by('a.departemen_induk', 'asc')
+                 ->order_by('a.departemen_nama', 'asc');
         $query  = $this->db->get(self::$table3.' a');
                    
         $data = array();
@@ -216,8 +243,8 @@ class M_izin extends CI_Model
     {
         $this->db->where('fizin_id', $fizin_id);
         return $this->db->update(self::$table1,array(
-            'fizin_ditolak' => $fizin_ditolak,
-            'fizin_keterangan' => $fizin_keterangan
+            'fizin_ditolak'     => $fizin_ditolak,
+            'fizin_keterangan'  => $fizin_keterangan
         ));
     }
 }

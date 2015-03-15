@@ -53,16 +53,17 @@ class M_karyawan extends CI_Model
 	}
         
         $this->db->select('karyawan_nik, karyawan_nama, karyawan_bagian, c.departemen_nama as "c.departemen_nama", b.departemen_nama as "b.departemen_nama"', NULL);
-        $this->db->from(self::$table1.' a');
-        $this->db->join(self::$table2.' b', 'a.karyawan_bagian = b.departemen_id', 'left');
-        $this->db->join(self::$table2.' c', 'b.departemen_induk = c.departemen_id', 'left');
+        $this->db->join(self::$table2.' b', 'a.karyawan_bagian = b.departemen_id', 'left')
+                 ->join(self::$table2.' c', 'b.departemen_induk = c.departemen_id', 'left');
         $this->db->where($cond, NULL, FALSE);
-        $total  = $this->db->count_all_results();
         
+        $total  = $this->db->count_all_results(self::$table1.' a');
+        //---------------------------------------------------------//
         $this->db->select('karyawan_nik, karyawan_nama, karyawan_bagian, c.departemen_nama as "c.departemen_nama", b.departemen_nama as "b.departemen_nama"', NULL);
         $this->db->join(self::$table2.' b', 'a.karyawan_bagian = b.departemen_id', 'left');
         $this->db->join(self::$table2.' c', 'b.departemen_induk = c.departemen_id', 'left');
         $this->db->where($cond, NULL, FALSE);
+        
         $this->db->order_by($sort, $order);
         $this->db->limit($rows, $offset);
         $query  = $this->db->get(self::$table1.' a');
@@ -88,9 +89,9 @@ class M_karyawan extends CI_Model
         if($res->num_rows == 0)
         {            
             return $this->db->insert(self::$table1,array(
-                'karyawan_nik'=>$nik,
-                'karyawan_nama'=>$nama,
-                'karyawan_bagian'=>$bagian         
+                'karyawan_nik'      => $nik,
+                'karyawan_nama'     => $nama,
+                'karyawan_bagian'   => $bagian         
             ));
         }
         else
@@ -104,8 +105,8 @@ class M_karyawan extends CI_Model
     {
         $this->db->where('karyawan_nik', $nik);
         return $this->db->update(self::$table1,array(
-            'karyawan_nama'=>$nama,
-            'karyawan_bagian'=>$bagian
+            'karyawan_nama'     => $nama,
+            'karyawan_bagian'   => $bagian
         ));
     }
     
@@ -119,8 +120,8 @@ class M_karyawan extends CI_Model
         $this->db->select('a.departemen_id as id, b.departemen_nama as departemen, a.departemen_nama as bagian');
         $this->db->join(self::$table2.' b', 'a.departemen_induk = b.departemen_id', 'left');
         $this->db->where('a.departemen_induk > 0');
-        $this->db->order_by('a.departemen_induk', 'asc');
-        $this->db->order_by('a.departemen_nama', 'asc');
+        $this->db->order_by('a.departemen_induk', 'asc')
+                 ->order_by('a.departemen_nama', 'asc');
         $query  = $this->db->get(self::$table2.' a');
                    
         $data = array();

@@ -58,7 +58,7 @@
 </script>
 <!-- Data Grid -->
 <table id="grid-transaksi_izin"
-    data-options="pageSize:50, multiSort:true, remoteSort:false, rownumbers:true, singleSelect:true, 
+    data-options="pageSize:50, multiSort:true, remoteSort:true, rownumbers:true, singleSelect:true, 
                 fit:true, fitColumns:false, toolbar:toolbar_transaksi_izin">
     <thead>
         <tr>
@@ -101,23 +101,23 @@
     },{
         text    : 'Refresh',
         iconCls : 'icon-reload',
-        handler : function(){$('#grid-transaksi_izin').datagrid('reload');}
+        handler : function(){transaksiIzinRefresh();}
     },{
         id      : 'izin_disetujui',
-        handler : function(){disetujui();}
+        handler : function(){transaksiIzinDisetujui();}
     },{
         id      : 'izin_ditolak',
-        handler : function(){ditolak();}
+        handler : function(){transaksiIzinDitolak();}
     },{
         id      : 'izin_diketahui',
-        handler : function(){diketahui();}
+        handler : function(){transaksiIzinDiketahui();}
     }];
     
-    var user        = <?php echo $this->session->userdata('id');?>;
-    var setuju      = <?php echo $this->session->userdata('user_disetujui');?>;
-    var tahu        = <?php echo $this->session->userdata('user_diketahui');?>;
-    var datasetuju  = null;
-    var datatahu    = null;
+    var transaksiIzinUser        = <?php echo $this->session->userdata('id');?>;
+    var transaksiIzinSetuju      = <?php echo $this->session->userdata('user_disetujui');?>;
+    var transaksiIzinTahu        = <?php echo $this->session->userdata('user_diketahui');?>;
+    var transaksiIzinDataSetuju  = null;
+    var transaksiIzinDataTahu    = null;
     
     $('#grid-transaksi_izin').datagrid({view:scrollview,remoteFilter:true,
         url:'<?php echo site_url('transaksi/izin/index'); ?>?grid=true'})
@@ -170,13 +170,13 @@
                         iconCls : '',
                         disabled: true
                     });
-                    if(setuju){
+                    if(transaksiIzinSetuju){
                         $('#izin_disetujui').linkbutton({
                             text    : 'Disetujui',
                             iconCls : 'icon-approved',
                             disabled: false
                         });
-                        datasetuju = 1;
+                        transaksiIzinDataSetuju = 1;
                         $('#izin_ditolak').linkbutton({
                             text    : 'Ditolak',
                             iconCls : 'icon-approved_denied',
@@ -204,14 +204,14 @@
                         iconCls : '',
                         disabled: true
                     });
-                    if(setuju && tahu){
-                        if(row.fizin_disetujui == user){
+                    if(transaksiIzinSetuju && transaksiIzinTahu){
+                        if(row.fizin_disetujui == transaksiIzinUser){
                             $('#izin_disetujui').linkbutton({
                                 text    : 'Batal Disetujui',
                                 iconCls : 'icon-approved_denied',
                                 disabled: false
                             });
-                            datasetuju = 0;
+                            transaksiIzinDataSetuju = 0;
                             $('#izin_diketahui').linkbutton({
                                 text    : '',
                                 iconCls : '',
@@ -229,22 +229,22 @@
                                 iconCls : 'icon-approved',
                                 disabled: false
                             });
-                            datatahu = 1;
+                            transaksiIzinDataTahu = 1;
                         }
                     }
-                    else if(setuju){
+                    else if(transaksiIzinSetuju){
                         $('#izin_diketahui').linkbutton({
                             text    : '',
                             iconCls : '',
                             disabled: true
                         });
-                        if(row.fizin_disetujui == user){
+                        if(row.fizin_disetujui == transaksiIzinUser){
                             $('#izin_disetujui').linkbutton({
                                 text    : 'Batal Disetujui',
                                 iconCls : 'icon-approved_denied',
                                 disabled: false
                             });
-                            datasetuju = 0;
+                            transaksiIzinDataSetuju = 0;
                         }
                         else{
                             $('#izin_disetujui').linkbutton({
@@ -254,13 +254,13 @@
                             });
                         }
                     }
-                    else if(tahu){
+                    else if(transaksiIzinTahu){
                         $('#izin_disetujui').linkbutton({
                             text    : '',
                             iconCls : '',
                             disabled: true
                         });
-                        if(row.fizin_disetujui == user){
+                        if(row.fizin_disetujui == transaksiIzinUser){
                             $('#izin_diketahui').linkbutton({
                                 text    : '',
                                 iconCls : '',
@@ -273,7 +273,7 @@
                                 iconCls : 'icon-approved',
                                 disabled: false
                             });
-                            datatahu = 1;
+                            transaksiIzinDataTahu = 1;
                         }
                     }
                     else{
@@ -302,14 +302,14 @@
                             iconCls : '',
                             disabled: true
                         });
-                    if(tahu){
-                        if(row.fizin_diketahui == user){
+                    if(transaksiIzinTahu){
+                        if(row.fizin_diketahui == transaksiIzinUser){
                             $('#izin_diketahui').linkbutton({
                                 text    : 'Batal Diketahui',
                                 iconCls : 'icon-approved_denied',
                                 disabled: false
                             });
-                            datatahu = 0;
+                            transaksiIzinDataTahu = 0;
                         }
                         else{
                             $('#izin_diketahui').linkbutton({
@@ -330,7 +330,7 @@
             }
         },
         onDblClickRow: function(index,row){
-            if(row['e.name'] === null){
+            if(row['e.name'] === null && row['g.name'] === null){
                 transaksiIzinUpdate();
             }
 	},
@@ -347,15 +347,36 @@
 	}
         }).datagrid('enableFilter');
     
-    function disetujui() {
+    function transaksiIzinRefresh() {
+        $('#izin_edit').linkbutton('disable');
+        $('#izin_delete').linkbutton('disable');
+        $('#izin_disetujui').linkbutton({
+            text    : '',
+            iconCls : '',
+            disabled: true
+        });
+        $('#izin_diketahui').linkbutton({
+            text    : '',
+            iconCls : '',
+            disabled: true
+        });
+        $('#izin_ditolak').linkbutton({
+            text    : '',
+            iconCls : '',
+            disabled: true
+        });
+        $('#grid-transaksi_izin').datagrid('reload');
+    }
+    
+    function transaksiIzinDisetujui() {
         var row = $('#grid-transaksi_izin').datagrid('getSelected');
         if (row){
-            if(datasetuju === 1){
+            if(transaksiIzinDataSetuju === 1){
                 $.messager.confirm('Konfirmasi','Anda yakin ingin Menyetujui izin no. '+row.fizin_id+' ?',function(r){
                     if (r){
-                        $.post('<?php echo site_url('transaksi/izin/disetujui'); ?>',{fizin_id:row.fizin_id,fizin_disetujui:user},function(result){
+                        $.post('<?php echo site_url('transaksi/izin/disetujui'); ?>',{fizin_id:row.fizin_id,fizin_disetujui:transaksiIzinUser},function(result){
                             if (result.success){
-                                $('#grid-transaksi_izin').datagrid('reload');
+                                transaksiIzinRefresh();
                                 $.messager.show({
                                     title: 'Info',
                                     msg: 'Update Data Berhasil'
@@ -370,12 +391,12 @@
                     }
                 });
             }
-            else if(datasetuju === 0){
+            else if(transaksiIzinDataSetuju === 0){
                 $.messager.confirm('Konfirmasi','Anda yakin ingin Batal Menyetujui izin no. '+row.fizin_id+' ?',function(r){
                     if (r){
                         $.post('<?php echo site_url('transaksi/izin/disetujui'); ?>',{fizin_id:row.fizin_id,fizin_disetujui:0},function(result){
                             if (result.success){
-                                $('#grid-transaksi_izin').datagrid('reload');
+                                transaksiIzinRefresh();
                                 $.messager.show({
                                     title: 'Info',
                                     msg: 'Update Data Berhasil'
@@ -397,15 +418,15 @@
         }
     }
     
-    function diketahui() {
+    function transaksiIzinDiketahui() {
         var row = $('#grid-transaksi_izin').datagrid('getSelected');
         if (row){
-            if(datatahu === 1){
+            if(transaksiIzinDataTahu === 1){
                 $.messager.confirm('Konfirmasi','Anda yakin ingin Mengetahui izin no. '+row.fizin_id+' ?',function(r){
                     if (r){
-                        $.post('<?php echo site_url('transaksi/izin/diketahui'); ?>',{fizin_id:row.fizin_id,fizin_diketahui:user},function(result){
+                        $.post('<?php echo site_url('transaksi/izin/diketahui'); ?>',{fizin_id:row.fizin_id,fizin_diketahui:transaksiIzinUser},function(result){
                             if (result.success){
-                                $('#grid-transaksi_izin').datagrid('reload');
+                                transaksiIzinRefresh();
                                 $.messager.show({
                                     title: 'Info',
                                     msg: 'Update Data Berhasil'
@@ -420,12 +441,12 @@
                     }
                 });
             }
-            else if(datatahu === 0){
+            else if(transaksiIzinDataTahu === 0){
                 $.messager.confirm('Konfirmasi','Anda yakin ingin Batal Mengetahui izin no. '+row.fizin_id+' ?',function(r){
                     if (r){
                         $.post('<?php echo site_url('transaksi/izin/diketahui'); ?>',{fizin_id:row.fizin_id,fizin_diketahui:0},function(result){
                             if (result.success){
-                                $('#grid-transaksi_izin').datagrid('reload');
+                                transaksiIzinRefresh();
                                 $.messager.show({
                                     title: 'Info',
                                     msg: 'Update Data Berhasil'
@@ -447,14 +468,14 @@
         }
     }
     
-    function ditolak(){
+    function transaksiIzinDitolak(){
         var row = $('#grid-transaksi_izin').datagrid('getSelected');
         if (row){
             $.messager.prompt('Konfirmasi','Mengapa anda ingin Menolak izin no. '+row.fizin_id+' ?',function(r){
                 if (r){
-                    $.post('<?php echo site_url('transaksi/izin/ditolak'); ?>',{fizin_id:row.fizin_id,fizin_ditolak:user,fizin_keterangan:r},function(result){
+                    $.post('<?php echo site_url('transaksi/izin/ditolak'); ?>',{fizin_id:row.fizin_id,fizin_ditolak:transaksiIzinUser,fizin_keterangan:r},function(result){
                         if (result.success){
-                            $('#grid-transaksi_izin').datagrid('reload');
+                            transaksiIzinRefresh();
                             $.messager.show({
                                 title: 'Info',
                                 msg: 'Hapus Data Berhasil'
@@ -479,7 +500,6 @@
         $('#dlg-transaksi_izin').dialog({modal: true}).dialog('open').dialog('setTitle','Tambah Data');
         $('#fm-transaksi_izin').form('clear');
         url = '<?php echo site_url('transaksi/izin/create'); ?>';
-        //$('#nik').textbox({disabled: false});
     }
     
     function transaksiIzinUpdate() {
@@ -488,7 +508,6 @@
             $('#dlg-transaksi_izin').dialog({modal: true}).dialog('open').dialog('setTitle','Edit Data');
             $('#fm-transaksi_izin').form('load',row);
             url = '<?php echo site_url('transaksi/izin/update'); ?>/' + row.fizin_id;
-            //$('#nik').textbox({disabled: true});
         }
         else
         {
@@ -506,7 +525,7 @@
                 var result = eval('('+result+')');
                 if(result.success){
                     $('#dlg-transaksi_izin').dialog('close');
-                    $('#grid-transaksi_izin').datagrid('reload');
+                    transaksiIzinRefresh();
                     $.messager.show({
                         title: 'Info',
                         msg: 'Data Berhasil Disimpan'
@@ -528,7 +547,7 @@
                 if (r){
                     $.post('<?php echo site_url('transaksi/izin/delete'); ?>',{fizin_id:row.fizin_id},function(result){
                         if (result.success){
-                            $('#grid-transaksi_izin').datagrid('reload');
+                            transaksiIzinRefresh();
                             $.messager.show({
                                 title: 'Info',
                                 msg: 'Hapus Data Berhasil'
@@ -585,15 +604,32 @@
         </div>
         <div class="fitem">
             <label for="type">Nama Karyawan</label>
-            <input type="text" id="fizin_nik" name="fizin_nik" style="width:200px;" class="easyui-combobox" required="true"
-                data-options="url:'<?php echo site_url('transaksi/izin/getKaryawan'); ?>',
-                method:'get', valueField:'karyawan_nik', textField:'karyawan_nama', panelHeight:'300'" />
+            <input type="text" id="fizin_nik" name="fizin_nik" style="width:200px;" class="easyui-combogrid" required="true"
+                data-options="
+                    panelWidth: 500,
+                    idField: 'karyawan_nik',
+                    textField: 'karyawan_nama',
+                    url:'<?php echo site_url('transaksi/izin/getKaryawan'); ?>',
+                    mode:'remote',
+                    fitColumns: true,
+                    columns: [[
+                        {field:'karyawan_nik',title:'NIK',width:50,align:'center'},
+                        {field:'karyawan_nama',title:'Nama',width:120,halign:'center'},
+                        {field:'c.departemen_nama',title:'Departemen',width:80,align:'center'},
+                        {field:'b.departemen_nama',title:'Bagian',width:80,align:'center'}
+                    ]],
+                    onSelect: function (rowIndex, rowData) {
+                        var g = $('#fizin_nik').combogrid('grid');
+                        var r = g.datagrid('getSelected');
+                        $('#fizin_bagian').combobox('setValue', r.karyawan_bagian);
+                    }
+            " />
         </div>
         <div class="fitem">
             <label for="type">Bagian</label>
-            <input type="text" id="fizin_bagian" name="fizin_bagian" style="width:200px;" class="easyui-combobox" required="true"
+            <input type="text" id="fizin_bagian" name="fizin_bagian" style="width:200px;" class="easyui-combobox"
                 data-options="url:'<?php echo site_url('transaksi/izin/getDept'); ?>',
-                method:'get', valueField:'id', textField:'bagian', groupField:'departemen', panelHeight:'300'" />
+                method:'get', valueField:'id', textField:'bagian', groupField:'departemen', panelHeight:'300', readonly: true" />
         </div>
         <div class="fitem">
             <label for="type">Jenis Izin</label>
