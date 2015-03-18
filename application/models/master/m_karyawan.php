@@ -47,21 +47,27 @@ class M_karyawan extends CI_Model
                         $cond .= " and $field > $value";
                     } else if ($op == 'greaterorequal'){
                         $cond .= " and $field >= $value";
-                    } 
+                    } else if ($op == 'is'){
+                        $cond .= " and $field IS $value";
+                    }
                 }
             }
 	}
         
-        $this->db->select('karyawan_nik, karyawan_nama, karyawan_bagian, c.departemen_nama as "c.departemen_nama", b.departemen_nama as "b.departemen_nama"', NULL);
+        $this->db->select('karyawan_nik, karyawan_nama, karyawan_bagian, 
+                        c.departemen_nama as "c.departemen_nama", 
+                        b.departemen_nama as "b.departemen_nama"', NULL);
         $this->db->join(self::$table2.' b', 'a.karyawan_bagian = b.departemen_id', 'left')
                  ->join(self::$table2.' c', 'b.departemen_induk = c.departemen_id', 'left');
         $this->db->where($cond, NULL, FALSE);
         
         $total  = $this->db->count_all_results(self::$table1.' a');
         //---------------------------------------------------------//
-        $this->db->select('karyawan_nik, karyawan_nama, karyawan_bagian, c.departemen_nama as "c.departemen_nama", b.departemen_nama as "b.departemen_nama"', NULL);
-        $this->db->join(self::$table2.' b', 'a.karyawan_bagian = b.departemen_id', 'left');
-        $this->db->join(self::$table2.' c', 'b.departemen_induk = c.departemen_id', 'left');
+        $this->db->select('karyawan_nik, karyawan_nama, karyawan_bagian, 
+                        c.departemen_nama as "c.departemen_nama", 
+                        b.departemen_nama as "b.departemen_nama"', NULL);
+        $this->db->join(self::$table2.' b', 'a.karyawan_bagian = b.departemen_id', 'left')
+                 ->join(self::$table2.' c', 'b.departemen_induk = c.departemen_id', 'left');
         $this->db->where($cond, NULL, FALSE);
         
         $this->db->order_by($sort, $order);
@@ -86,7 +92,7 @@ class M_karyawan extends CI_Model
         $this->db->where('karyawan_nik', $nik);
         $res = $this->db->get(self::$table1);
         
-        if($res->num_rows == 0)
+        if($res->num_rows == 0) //cek apakah nik sudah ada
         {            
             return $this->db->insert(self::$table1,array(
                 'karyawan_nik'      => $nik,

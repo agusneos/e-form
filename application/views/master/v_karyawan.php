@@ -77,21 +77,21 @@
         id      : 'master_karyawan-new',
         text    : 'New',
         iconCls : 'icon-new_file',
-        handler : function(){master_karyawanCreate();}
+        handler : function(){masterKaryawanCreate();}
     },{
         id      : 'master_karyawan-edit',
         text    : 'Edit',
         iconCls : 'icon-edit',
-        handler : function(){master_karyawanUpdate();}
+        handler : function(){masterKaryawanUpdate();}
     },{
         id      : 'master_karyawan-delete',
         text    : 'Delete',
         iconCls : 'icon-cancel',
-        handler : function(){master_karyawanHapus();}
+        handler : function(){masterKaryawanHapus();}
     },{
         text    : 'Refresh',
         iconCls : 'icon-reload',
-        handler : function(){$('#grid-master_karyawan').datagrid('reload');}
+        handler : function(){masterKaryawanRefresh();}
     }];
     
     $('#grid-master_karyawan').datagrid({view:scrollview,remoteFilter:true,
@@ -106,24 +106,32 @@
             $('#master_karyawan-delete').linkbutton('enable');
         },
         onDblClickRow: function(index,row){
-            master_karyawanUpdate();
+            masterKaryawanUpdate();
 	}
         }).datagrid('enableFilter');
     
-    function master_karyawanCreate() {
+    function masterKaryawanRefresh() {
+        $('#master_karyawan-edit').linkbutton('disable');
+        $('#master_karyawan-delete').linkbutton('disable');
+        $('#grid-master_karyawan').datagrid('reload');
+    }
+    
+    function masterKaryawanCreate() {
         $('#dlg-master_karyawan').dialog({modal: true}).dialog('open').dialog('setTitle','Tambah Data');
         $('#fm-master_karyawan').form('clear');
         url = '<?php echo site_url('master/karyawan/create'); ?>';
-        $('#nik').textbox({readonly: false});
+        $('#karyawan_nik').textbox('enable');
+        $('#karyawan_nik').next().find('input').focus();
     }
     
-    function master_karyawanUpdate() {
+    function masterKaryawanUpdate() {
         var row = $('#grid-master_karyawan').datagrid('getSelected');
         if(row){
             $('#dlg-master_karyawan').dialog({modal: true}).dialog('open').dialog('setTitle','Edit Data');
             $('#fm-master_karyawan').form('load',row);
             url = '<?php echo site_url('master/karyawan/update'); ?>/' + row.karyawan_nik;
-            $('#nik').textbox({readonly: true});
+            $('#karyawan_nik').textbox('disable');
+            
         }
         else
         {
@@ -141,7 +149,7 @@
                 var result = eval('('+result+')');
                 if(result.success){
                     $('#dlg-master_karyawan').dialog('close');
-                    $('#grid-master_karyawan').datagrid('reload');
+                    masterKaryawanRefresh();
                     $.messager.show({
                         title: 'Info',
                         msg: 'Data Berhasil Disimpan'
@@ -156,14 +164,14 @@
         });
     }
         
-    function master_karyawanHapus(){
+    function masterKaryawanHapus(){
         var row = $('#grid-master_karyawan').datagrid('getSelected');
         if (row){
             $.messager.confirm('Konfirmasi','Anda yakin ingin menghapus Karyawan '+row.karyawan_nama+' dengan NIK '+row.karyawan_nik+' ?',function(r){
                 if (r){
                     $.post('<?php echo site_url('master/karyawan/delete'); ?>',{karyawan_nik:row.karyawan_nik},function(result){
                         if (result.success){
-                            $('#grid-master_karyawan').datagrid('reload');
+                            masterKaryawanRefresh();
                             $.messager.show({
                                 title: 'Info',
                                 msg: 'Hapus Data Berhasil'
@@ -216,11 +224,11 @@
     <form id="fm-master_karyawan" method="post" novalidate>        
         <div class="fitem">
             <label for="type">NIK</label>
-            <input type="text" id="nik" name="karyawan_nik" class="easyui-textbox" required="true"/>
+            <input type="text" id="karyawan_nik" name="karyawan_nik" class="easyui-textbox" required="true"/>
         </div>
         <div class="fitem">
             <label for="type">Nama Karyawan</label>
-            <input type="text" id="nama" name="karyawan_nama" style="width:350px;" class="easyui-textbox" required="true"/>
+            <input type="text" id="karyawan_nama" name="karyawan_nama" style="width:350px;" class="easyui-textbox" required="true"/>
         </div>
         <div class="fitem">
             <label for="type">Bagian</label>
