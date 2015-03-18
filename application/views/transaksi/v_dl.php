@@ -58,26 +58,28 @@
 </script>
 <!-- Data Grid -->
 <table id="grid-transaksi_dl"
-    data-options="pageSize:50, multiSort:true, remoteSort:false, rownumbers:true, singleSelect:true, 
+    data-options="pageSize:50, multiSort:true, remoteSort:true, rownumbers:true, singleSelect:true, 
                 fit:true, fitColumns:false, toolbar:toolbar_transaksi_dl">
     <thead>
         <tr>
             <th data-options="field:'ck',checkbox:true" ></th>
-            <th data-options="field:'fdl_id'"               width="50"  halign="center" align="center" sortable="true">ID</th>
-            <th data-options="field:'fdl_tanggal'"          width="100" halign="center" align="center" sortable="true">Tanggal</th>
-            <th data-options="field:'d.karyawan_nama'"      width="150" halign="center" align="center" sortable="true">Nama Karyawan</th>
-            <th data-options="field:'c.departemen_nama'"    width="100" halign="center" align="center" sortable="true">Departemen</th>
-            <th data-options="field:'b.departemen_nama'"    width="100" halign="center" align="center" sortable="true">Bagian</th>
-            <th data-options="field:'fdl_dinas'"            width="100"  halign="center" align="center" sortable="true">Dinas Luar</th>
-            <th data-options="field:'fdl_dari'"             width="100"  halign="center" align="center" sortable="true">Dari</th>
-            <th data-options="field:'fdl_sampai'"           width="100" halign="center" align="center" sortable="true">Sampai</th>
-            <th data-options="field:'fdl_jam'"              width="100" halign="center" align="center" sortable="true">Jam</th>
-            <th data-options="field:'fdl_tujuan'"           width="200" halign="center" align="center" sortable="true">Tujuan</th>
-            <th data-options="field:'fdl_bersama'"          width="200" halign="center" align="center" sortable="true">Bersama</th>
-            <th data-options="field:'fdl_keperluan'"        width="200" halign="center" align="center" sortable="true">Keperluan</th>
-            <th data-options="field:'fdl_timestamp'"        width="150" halign="center" align="center" sortable="true">Tanggal Pembuatan</th>
-            <th data-options="field:'fdl_disetujui'"        width="70"  halign="center" align="center" sortable="true">Disetujui</th>
-            <th data-options="field:'fdl_diketahui'"        width="70"  halign="center" align="center" sortable="true">Diketahui</th>
+            <th data-options="field:'fdl_id'"               width="50"  halign="center" align="center" sortable="true" >ID</th>
+            <th data-options="field:'fdl_tanggal'"          width="100" halign="center" align="center" sortable="true" >Tanggal</th>
+            <th data-options="field:'d.karyawan_nama'"      width="150" halign="center" align="center" sortable="true" >Nama Karyawan</th>
+            <th data-options="field:'c.departemen_nama'"    width="100" halign="center" align="center" sortable="true" >Departemen</th>
+            <th data-options="field:'b.departemen_nama'"    width="100" halign="center" align="center" sortable="true" >Bagian</th>
+            <th data-options="field:'fdl_dari'"             width="100" halign="center" align="center" sortable="true" >Dari</th>
+            <th data-options="field:'fdl_sampai'"           width="100" halign="center" align="center" sortable="true" >Sampai</th>
+            <th data-options="field:'fdl_jam'"              width="100" halign="center" align="center" sortable="true" >Jam</th>
+            <th data-options="field:'fdl_tujuan'"           width="200" halign="center" align="center" sortable="true" >Tujuan</th>
+            <th data-options="field:'fdl_bersama'"          width="200" halign="center" align="center" sortable="true" >Bersama</th>
+            <th data-options="field:'fdl_keperluan'"        width="200" halign="center" align="center" sortable="true" >Keperluan</th>
+            <th data-options="field:'fdl_keterangan'"       width="150" halign="center" align="center" sortable="true" >Keterangan</th>
+            <th data-options="field:'e.name'"               width="70"  halign="center" align="center" sortable="true" >Disetujui</th>
+            <th data-options="field:'f.name'"               width="70"  halign="center" align="center" sortable="true" >Diketahui</th>
+            <th data-options="field:'g.name'"               width="70"  halign="center" align="center" sortable="true" >Ditolak</th>
+            <th data-options="field:'h.name'"               width="70"  halign="center" align="center" sortable="true" >Dibuat</th>
+            <th data-options="field:'fdl_timestamp'"        width="140" halign="center" align="center" sortable="true" >Tanggal Pembuatan</th>
         </tr>
     </thead>
 </table>
@@ -101,8 +103,23 @@
     },{
         text    : 'Refresh',
         iconCls : 'icon-reload',
-        handler : function(){$('#grid-transaksi_dl').datagrid('reload');}
+        handler : function(){transaksiDlRefresh();}
+    },{
+        id      : 'dl_disetujui',
+        handler : function(){transaksiDlDisetujui();}
+    },{
+        id      : 'dl_ditolak',
+        handler : function(){transaksiDlDitolak();}
+    },{
+        id      : 'dl_diketahui',
+        handler : function(){transaksiDlDiketahui();}
     }];
+    
+    var transaksiDlUser        = <?php echo $this->session->userdata('id');?>;
+    var transaksiDlSetuju      = <?php echo $this->session->userdata('user_disetujui');?>;
+    var transaksiDlTahu        = <?php echo $this->session->userdata('user_diketahui');?>;
+    var transaksiDlDataSetuju  = null;
+    var transaksiDlDataTahu    = null;
     
     $('#grid-transaksi_dl').datagrid({view:scrollview,remoteFilter:true,
         url:'<?php echo site_url('transaksi/dl/index'); ?>?grid=true'})
@@ -110,21 +127,398 @@
         onLoadSuccess: function(data){
             $('#dl_edit').linkbutton('disable');
             $('#dl_delete').linkbutton('disable');
+            $('#dl_disetujui').linkbutton({
+                text    : '',
+                iconCls : '',
+                disabled: true
+            });
+            $('#dl_diketahui').linkbutton({
+                text    : '',
+                iconCls : '',
+                disabled: true
+            });
+            $('#dl_ditolak').linkbutton({
+                text    : '',
+                iconCls : '',
+                disabled: true
+            });
         },
         onClickRow: function(index,row){
-            $('#dl_edit').linkbutton('enable');
-            $('#dl_delete').linkbutton('enable');
+            if(row['g.name'] !== null){
+                $('#dl_edit').linkbutton('disable');
+                $('#dl_delete').linkbutton('disable');
+                $('#dl_disetujui').linkbutton({
+                    text    : '',
+                    iconCls : '',
+                    disabled: true
+                });
+                $('#dl_diketahui').linkbutton({
+                    text    : '',
+                    iconCls : '',
+                    disabled: true
+                });
+                $('#dl_ditolak').linkbutton({
+                    text    : '',
+                    iconCls : '',
+                    disabled: true
+                });
+            }
+            else {
+                if(row['e.name'] === null && row['f.name'] === null){                
+                    $('#dl_edit').linkbutton('enable');
+                    $('#dl_delete').linkbutton('enable');
+                    $('#dl_diketahui').linkbutton({
+                        text    : '',
+                        iconCls : '',
+                        disabled: true
+                    });
+                    if(transaksiDlSetuju){
+                        $('#dl_disetujui').linkbutton({
+                            text    : 'Disetujui',
+                            iconCls : 'icon-approved',
+                            disabled: false
+                        });
+                        transaksiDlDataSetuju = 1;
+                        $('#dl_ditolak').linkbutton({
+                            text    : 'Ditolak',
+                            iconCls : 'icon-approved_denied',
+                            disabled: false
+                        });
+                    }
+                    else{
+                        $('#dl_disetujui').linkbutton({
+                            text    : '',
+                            iconCls : '',
+                            disabled: true
+                        });
+                        $('#dl_ditolak').linkbutton({
+                            text    : '',
+                            iconCls : '',
+                            disabled: true
+                        });
+                    }
+                }
+                if(row['e.name'] !== null && row['f.name'] === null){
+                    $('#dl_edit').linkbutton('disable');
+                    $('#dl_delete').linkbutton('disable');
+                    $('#dl_ditolak').linkbutton({
+                        text    : '',
+                        iconCls : '',
+                        disabled: true
+                    });
+                    if(transaksiDlSetuju && transaksiDlTahu){
+                        if(row.fdl_disetujui == transaksiDlUser){
+                            $('#dl_disetujui').linkbutton({
+                                text    : 'Batal Disetujui',
+                                iconCls : 'icon-approved_denied',
+                                disabled: false
+                            });
+                            transaksiDlDataSetuju = 0;
+                            $('#dl_diketahui').linkbutton({
+                                text    : '',
+                                iconCls : '',
+                                disabled: true
+                            });
+                        }
+                        else{
+                            $('#dl_disetujui').linkbutton({
+                                text    : '',
+                                iconCls : '',
+                                disabled: true
+                            });
+                            $('#dl_diketahui').linkbutton({
+                                text    : 'Diketahui',
+                                iconCls : 'icon-approved',
+                                disabled: false
+                            });
+                            transaksiDlDataTahu = 1;
+                        }
+                    }
+                    else if(transaksiDlSetuju){
+                        $('#dl_diketahui').linkbutton({
+                            text    : '',
+                            iconCls : '',
+                            disabled: true
+                        });
+                        if(row.fdl_disetujui == transaksiDlUser){
+                            $('#dl_disetujui').linkbutton({
+                                text    : 'Batal Disetujui',
+                                iconCls : 'icon-approved_denied',
+                                disabled: false
+                            });
+                            transaksiDlDataSetuju = 0;
+                        }
+                        else{
+                            $('#dl_disetujui').linkbutton({
+                                text    : '',
+                                iconCls : '',
+                                disabled: true
+                            });
+                        }
+                    }
+                    else if(transaksiDlTahu){
+                        $('#dl_disetujui').linkbutton({
+                            text    : '',
+                            iconCls : '',
+                            disabled: true
+                        });
+                        if(row.fdl_disetujui == transaksiDlUser){
+                            $('#dl_diketahui').linkbutton({
+                                text    : '',
+                                iconCls : '',
+                                disabled: true
+                            });
+                        }
+                        else{
+                           $('#dl_diketahui').linkbutton({
+                                text    : 'Diketahui',
+                                iconCls : 'icon-approved',
+                                disabled: false
+                            });
+                            transaksiDlDataTahu = 1;
+                        }
+                    }
+                    else{
+                        $('#dl_diketahui').linkbutton({
+                            text    : '',
+                            iconCls : '',
+                            disabled: true
+                        });
+                        $('#dl_disetujui').linkbutton({
+                            text    : '',
+                            iconCls : '',
+                            disabled: true
+                        });
+                    }
+                }
+                if(row['e.name'] !== null && row['f.name'] !== null){
+                    $('#dl_edit').linkbutton('disable');
+                    $('#dl_delete').linkbutton('disable');
+                    $('#dl_disetujui').linkbutton({
+                        text    : '',
+                        iconCls : '',
+                        disabled: true
+                    });
+                    $('#dl_ditolak').linkbutton({
+                            text    : '',
+                            iconCls : '',
+                            disabled: true
+                        });
+                    if(transaksiDlTahu){
+                        if(row.fdl_diketahui == transaksiDlUser){
+                            $('#dl_diketahui').linkbutton({
+                                text    : 'Batal Diketahui',
+                                iconCls : 'icon-approved_denied',
+                                disabled: false
+                            });
+                            transaksiDlDataTahu = 0;
+                        }
+                        else{
+                            $('#dl_diketahui').linkbutton({
+                                text    : '',
+                                iconCls : '',
+                                disabled: true
+                            });
+                        }
+                    }
+                    else{
+                        $('#dl_diketahui').linkbutton({
+                            text    : '',
+                            iconCls : '',
+                            disabled: true
+                        });
+                    }
+                }
+            }
         },
         onDblClickRow: function(index,row){
-            transaksiDlUpdate();
+            if(row['e.name'] === null && row['g.name'] === null){
+                transaksiDlUpdate();
+            }
+	},
+        rowStyler: function(index,row){
+            if (row['e.name'] !== null && row['f.name'] !== null){
+                return 'background-color:#90EE90;color:#000;';
+            }
+            if (row['e.name'] !== null){
+                return 'background-color:#87CEFA;color:#000;';
+            }
+            if (row['g.name'] !== null){
+                return 'background-color:#FFB6C1;color:#000;';
+            }
 	}
-        }).datagrid('enableFilter');
+        }).datagrid('enableFilter', [{
+            field:'e.name',
+            type:'textbox',
+            op:['contains','is']
+        }, {
+            field:'f.name',
+            type:'textbox',
+            op:['contains','is']
+        }, {
+            field:'g.name',
+            type:'textbox',
+            op:['contains','is']
+        }, {
+            field:'h.name',
+            type:'textbox',
+            op:['contains','is']
+        }
+        ]);
+    
+    function transaksiDlRefresh() {
+        $('#dl_edit').linkbutton('disable');
+        $('#dl_delete').linkbutton('disable');
+        $('#dl_disetujui').linkbutton({
+            text    : '',
+            iconCls : '',
+            disabled: true
+        });
+        $('#dl_diketahui').linkbutton({
+            text    : '',
+            iconCls : '',
+            disabled: true
+        });
+        $('#dl_ditolak').linkbutton({
+            text    : '',
+            iconCls : '',
+            disabled: true
+        });
+        $('#grid-transaksi_dl').datagrid('reload');
+    }
+    
+    function transaksiDlDisetujui() {
+        var row = $('#grid-transaksi_dl').datagrid('getSelected');
+        if (row){
+            if(transaksiDlDataSetuju === 1){
+                $.messager.confirm('Konfirmasi','Anda yakin ingin Menyetujui Dinas Luar no. '+row.fdl_id+' ?',function(r){
+                    if (r){
+                        $.post('<?php echo site_url('transaksi/dl/disetujui'); ?>',{fdl_id:row.fdl_id,fdl_disetujui:transaksiDlUser},function(result){
+                            if (result.success){
+                                transaksiDlRefresh();
+                                $.messager.show({
+                                    title: 'Info',
+                                    msg: 'Update Data Berhasil'
+                                });
+                            } else {
+                                $.messager.show({
+                                    title: 'Error',
+                                    msg: 'Update Data Gagal'
+                                });
+                            }
+                        },'json');
+                    }
+                });
+            }
+            else if(transaksiDlDataSetuju === 0){
+                $.messager.confirm('Konfirmasi','Anda yakin ingin Batal Menyetujui Dinas Luar no. '+row.fdl_id+' ?',function(r){
+                    if (r){
+                        $.post('<?php echo site_url('transaksi/dl/disetujui'); ?>',{fdl_id:row.fdl_id,fdl_disetujui:0},function(result){
+                            if (result.success){
+                                transaksiDlRefresh();
+                                $.messager.show({
+                                    title: 'Info',
+                                    msg: 'Update Data Berhasil'
+                                });
+                            } else {
+                                $.messager.show({
+                                    title: 'Error',
+                                    msg: 'Update Data Gagal'
+                                });
+                            }
+                        },'json');
+                    }
+                });
+            }
+        }
+        else
+        {
+             $.messager.alert('Info','Data belum dipilih !','info');
+        }
+    }
+    
+    function transaksiDlDiketahui() {
+        var row = $('#grid-transaksi_dl').datagrid('getSelected');
+        if (row){
+            if(transaksiDlDataTahu === 1){
+                $.messager.confirm('Konfirmasi','Anda yakin ingin Mengetahui Dinas Luar no. '+row.fdl_id+' ?',function(r){
+                    if (r){
+                        $.post('<?php echo site_url('transaksi/dl/diketahui'); ?>',{fdl_id:row.fdl_id,fdl_diketahui:transaksiDlUser},function(result){
+                            if (result.success){
+                                transaksiDlRefresh();
+                                $.messager.show({
+                                    title: 'Info',
+                                    msg: 'Update Data Berhasil'
+                                });
+                            } else {
+                                $.messager.show({
+                                    title: 'Error',
+                                    msg: 'Update Data Gagal'
+                                });
+                            }
+                        },'json');
+                    }
+                });
+            }
+            else if(transaksiDlDataTahu === 0){
+                $.messager.confirm('Konfirmasi','Anda yakin ingin Batal Mengetahui Dinas Luar no. '+row.fdl_id+' ?',function(r){
+                    if (r){
+                        $.post('<?php echo site_url('transaksi/dl/diketahui'); ?>',{fdl_id:row.fdl_id,fdl_diketahui:0},function(result){
+                            if (result.success){
+                                transaksiDlRefresh();
+                                $.messager.show({
+                                    title: 'Info',
+                                    msg: 'Update Data Berhasil'
+                                });
+                            } else {
+                                $.messager.show({
+                                    title: 'Error',
+                                    msg: 'Update Data Gagal'
+                                });
+                            }
+                        },'json');
+                    }
+                });
+            }
+        }
+        else
+        {
+             $.messager.alert('Info','Data belum dipilih !','info');
+        }
+    }
+    
+    function transaksiDlDitolak(){
+        var row = $('#grid-transaksi_dl').datagrid('getSelected');
+        if (row){
+            $.messager.prompt('Konfirmasi','Mengapa anda ingin Menolak Dinas Luar no. '+row.fdl_id+' ?',function(r){
+                if (r){
+                    $.post('<?php echo site_url('transaksi/dl/ditolak'); ?>',{fdl_id:row.fdl_id,fdl_ditolak:transaksiDlUser,fdl_keterangan:r},function(result){
+                        if (result.success){
+                            transaksiDlRefresh();
+                            $.messager.show({
+                                title: 'Info',
+                                msg: 'Hapus Data Berhasil'
+                            });
+                        } else {
+                            $.messager.show({
+                                title: 'Error',
+                                msg: 'Hapus Data Gagal'
+                            });
+                        }
+                    },'json');
+                }
+            });
+        }
+        else
+        {
+             $.messager.alert('Info','Data belum dipilih !','info');
+        }
+    }
     
     function transaksiDlCreate() {
         $('#dlg-transaksi_dl').dialog({modal: true}).dialog('open').dialog('setTitle','Tambah Data');
         $('#fm-transaksi_dl').form('clear');
         url = '<?php echo site_url('transaksi/dl/create'); ?>';
-        //$('#nik').textbox({disabled: false});
     }
     
     function transaksiDlUpdate() {
@@ -133,12 +527,10 @@
             $('#dlg-transaksi_dl').dialog({modal: true}).dialog('open').dialog('setTitle','Edit Data');
             $('#fm-transaksi_dl').form('load',row);
             url = '<?php echo site_url('transaksi/dl/update'); ?>/' + row.fdl_id;
-            //$('#nik').textbox({disabled: true});
         }
         else
         {
              $.messager.alert('Info','Data belum dipilih !','info');
-             //$('#dl_new').linkbutton('disable');
         }
     }
     
@@ -152,7 +544,7 @@
                 var result = eval('('+result+')');
                 if(result.success){
                     $('#dlg-transaksi_dl').dialog('close');
-                    $('#grid-transaksi_dl').datagrid('reload');
+                    transaksiDlRefresh();
                     $.messager.show({
                         title: 'Info',
                         msg: 'Data Berhasil Disimpan'
@@ -174,7 +566,7 @@
                 if (r){
                     $.post('<?php echo site_url('transaksi/dl/delete'); ?>',{fdl_id:row.fdl_id},function(result){
                         if (result.success){
-                            $('#grid-transaksi_dl').datagrid('reload');
+                            transaksiDlRefresh();
                             $.messager.show({
                                 title: 'Info',
                                 msg: 'Hapus Data Berhasil'
@@ -231,21 +623,32 @@
         </div>
         <div class="fitem">
             <label for="type">Nama Karyawan</label>
-            <input type="text" id="fdl_nik" name="fdl_nik" style="width:200px;" class="easyui-combobox" required="true"
-                data-options="url:'<?php echo site_url('transaksi/dl/getKaryawan'); ?>',
-                method:'get', valueField:'karyawan_nik', textField:'karyawan_nama', panelHeight:'300'" />
+            <input type="text" id="fdl_nik" name="fdl_nik" style="width:200px;" class="easyui-combogrid" required="true"
+                data-options="
+                    panelWidth: 500,
+                    idField: 'karyawan_nik',
+                    textField: 'karyawan_nama',
+                    url:'<?php echo site_url('transaksi/dl/getKaryawan'); ?>',
+                    mode:'remote',
+                    fitColumns: true,
+                    columns: [[
+                        {field:'karyawan_nik',title:'NIK',width:50,align:'center'},
+                        {field:'karyawan_nama',title:'Nama',width:120,halign:'center'},
+                        {field:'c.departemen_nama',title:'Departemen',width:80,align:'center'},
+                        {field:'b.departemen_nama',title:'Bagian',width:80,align:'center'}
+                    ]],
+                    onSelect: function (rowIndex, rowData) {
+                        var g = $('#fdl_nik').combogrid('grid');
+                        var r = g.datagrid('getSelected');
+                        $('#fdl_bagian').combobox('setValue', r.karyawan_bagian);
+                    }
+            " />
         </div>
         <div class="fitem">
             <label for="type">Bagian</label>
-            <input type="text" id="fdl_bagian" name="fdl_bagian" style="width:200px;" class="easyui-combobox" required="true"
+            <input type="text" id="fdl_bagian" name="fdl_bagian" style="width:200px;" class="easyui-combobox"
                 data-options="url:'<?php echo site_url('transaksi/dl/getDept'); ?>',
-                method:'get', valueField:'id', textField:'bagian', groupField:'departemen', panelHeight:'300'" />
-        </div>
-        <div class="fitem">
-            <label for="type">Dinas Luar</label>
-            <input type="text" id="fdl_dinas" name="fdl_dinas" style="width:120px;" class="easyui-combobox" required="true"
-                data-options="url:'<?php echo site_url('transaksi/dl/enumDinas'); ?>',
-                method:'get', valueField:'data', textField:'data', panelHeight:'50'" />
+                method:'get', valueField:'id', textField:'bagian', groupField:'departemen', panelHeight:'300', readonly: true" />
         </div>
         <div class="fitem">
             <label for="type">Dari Tgl.</label>
@@ -270,6 +673,10 @@
         <div class="fitem">
             <label for="type">Keperluan</label>
             <input type="text" id="fdl_keperluan" name="fdl_keperluan" style="width:350px;" class="easyui-textbox" required="true"/>
+        </div>
+        <div class="fitem">
+            <label for="type">Keterangan</label>
+            <input type="text" id="fdl_keterangan" name="fdl_keterangan" style="width:350px;" class="easyui-textbox"/>
         </div>
     </form>
 </div>
