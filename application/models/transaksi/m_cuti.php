@@ -49,7 +49,9 @@ class M_cuti extends CI_Model
                         $cond .= " and $field > $value";
                     } else if ($op == 'greaterorequal'){
                         $cond .= " and $field >= $value";
-                    } 
+                    } else if ($op == 'is'){
+                        $cond .= " and $field IS $value";
+                    }
                 }
             }
 	}

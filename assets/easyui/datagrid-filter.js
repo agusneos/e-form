@@ -270,6 +270,12 @@
 			isMatch: function(source, value){
 				return source >= value;
 			}
+		},
+		is: {
+			text: 'Is',
+			isMatch: function(source, value){
+				return source +' IS '+ value;
+			}
 		}
 	};
 	$.fn.treegrid.defaults.operators = $.fn.datagrid.defaults.operators;

@@ -44,12 +44,9 @@ class Izin extends CI_Controller {
         $fizin_keperluan    = addslashes($_POST['fizin_keperluan']);
         $fizin_keterangan   = addslashes($_POST['fizin_keterangan']);
         
-        if($this->record->create($fizin_tanggal, $fizin_nik, $fizin_bagian, $user_id, 
-                                 $fizin_keterangan, $fizin_jenis, $fizin_dari, 
-                                 $fizin_sampai, $fizin_tanggal, $fizin_nik, 
-                                 $fizin_bagian, $fizin_jenis, $fizin_dari, 
-                                 $fizin_sampai, $fizin_keperluan, $fizin_keterangan, 
-                                 $user_id))
+        if($this->record->create($fizin_tanggal, $fizin_nik, $fizin_bagian, 
+                                 $fizin_jenis, $fizin_dari, $fizin_sampai, 
+                                 $fizin_keperluan, $fizin_keterangan, $user_id))
         {
             echo json_encode(array('success'=>true));
         }
@@ -77,8 +74,8 @@ class Izin extends CI_Controller {
         $fizin_keterangan   = addslashes($_POST['fizin_keterangan']);
         
         if($this->record->update($fizin_id, $fizin_tanggal, $fizin_nik, $fizin_bagian, 
-                                 $fizin_keterangan, $fizin_jenis, $fizin_dari, 
-                                 $fizin_sampai, $fizin_keperluan))
+                                 $fizin_jenis, $fizin_dari, $fizin_sampai, 
+                                 $fizin_keperluan, $fizin_keterangan))
         {
             echo json_encode(array('success'=>true));
         }

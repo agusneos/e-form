@@ -65,14 +65,17 @@
             <thead>
                 <tr>
                     <th data-options="field:'ck',checkbox:true" ></th>
-                    <th data-options="field:'fbpb_id'"              width="50"  halign="center" align="center" sortable="true">ID</th>
-                    <th data-options="field:'fbpb_tanggal'"         width="100" halign="center" align="center" sortable="true">Tanggal</th>
-                    <th data-options="field:'d.karyawan_nama'"      width="150" halign="center" align="center" sortable="true">Nama Karyawan</th>
-                    <th data-options="field:'c.departemen_nama'"    width="100" halign="center" align="center" sortable="true">Departemen</th>
-                    <th data-options="field:'b.departemen_nama'"    width="100" halign="center" align="center" sortable="true">Bagian</th>
-                    <th data-options="field:'fbpb_timestamp'"       width="150" halign="center" align="center" sortable="true">Tanggal Pembuatan</th>
-                    <th data-options="field:'fbpb_disetujui'"       width="70"  halign="center" align="center" sortable="true">Disetujui</th>
-                    <th data-options="field:'fbpb_diketahui'"       width="70"  halign="center" align="center" sortable="true">Diketahui</th>
+                    <th data-options="field:'fbpb_id'"              width="50"  halign="center" align="center" sortable="true" >ID</th>
+                    <th data-options="field:'fbpb_tanggal'"         width="100" halign="center" align="center" sortable="true" >Tanggal</th>
+                    <th data-options="field:'d.karyawan_nama'"      width="150" halign="center" align="center" sortable="true" >Nama Karyawan</th>
+                    <th data-options="field:'c.departemen_nama'"    width="100" halign="center" align="center" sortable="true" >Departemen</th>
+                    <th data-options="field:'b.departemen_nama'"    width="100" halign="center" align="center" sortable="true" >Bagian</th>
+                    <th data-options="field:'fbpb_keterangan'"      width="150" halign="center" align="center" sortable="true" >Keterangan</th>
+                    <th data-options="field:'e.name'"               width="70"  halign="center" align="center" sortable="true" >Disetujui</th>
+                    <th data-options="field:'f.name'"               width="70"  halign="center" align="center" sortable="true" >Diketahui</th>
+                    <th data-options="field:'g.name'"               width="70"  halign="center" align="center" sortable="true" >Ditolak</th>
+                    <th data-options="field:'h.name'"               width="70"  halign="center" align="center" sortable="true" >Dibuat</th>
+                    <th data-options="field:'fbpb_timestamp'"       width="140" halign="center" align="center" sortable="true" >Tanggal Pembuatan</th>
                 </tr>
             </thead>
         </table>
@@ -98,8 +101,7 @@
 </div>
 
 
-<script type="text/javascript">
-    
+<script type="text/javascript">    
     var toolbar_transaksi_bpb = [{
         id      : 'bpb_new',
         text    : 'New',
@@ -119,32 +121,218 @@
         id      : 'bpb_refresh',
         text    : 'Refresh',
         iconCls : 'icon-reload',
-        handler : function(){headerRefresh();}
+        handler : function(){transaksiBpbRefresh();}
+    },{
+        id      : 'bpb_disetujui',
+        handler : function(){transaksiBpbDisetujui();}
+    },{
+        id      : 'bpb_ditolak',
+        handler : function(){transaksiBpbDitolak();}
+    },{
+        id      : 'bpb_diketahui',
+        handler : function(){transaksiBpbDiketahui();}
     }];
+    
+    var transaksiBpbUser        = <?php echo $this->session->userdata('id');?>;
+    var transaksiBpbSetuju      = <?php echo $this->session->userdata('user_disetujui');?>;
+    var transaksiBpbTahu        = <?php echo $this->session->userdata('user_diketahui');?>;
+    var transaksiBpbDataSetuju  = null;
+    var transaksiBpbDataTahu    = null;
     
     $('#grid-transaksi_bpb').datagrid({view:scrollview,remoteFilter:true,
         url:'<?php echo site_url('transaksi/bpb/index'); ?>?grid=true'})        
         .datagrid({
 	onLoadSuccess: function(data){
-            alert();
+            transaksiBpbFirstLoad();
         },
         onClickRow: function(index,row){
-            $('#bpb_edit').linkbutton('enable');
-            $('#bpb_delete').linkbutton('enable');
-            $('#bpb_detail_new').linkbutton('enable');
-            $('#bpb_detail_refresh').linkbutton('enable');
-            nilai = row.fbpb_id;
-            $('#grid-transaksi_bpb_detail').datagrid('load','<?php echo site_url('transaksi/bpb/index_detail'); ?>?grid=true&nilai='+nilai);
+            
+            if(row['g.name'] !== null){
+                transaksiBpbFirstLoad();
+            }
+            else {
+                if(row['e.name'] === null && row['f.name'] === null){                
+                    $('#bpb_edit').linkbutton('enable');
+                    $('#bpb_delete').linkbutton('enable');
+                    $('#bpb_detail_new').linkbutton('enable');
+                    $('#bpb_detail_refresh').linkbutton('enable');
+                    transaksiBpbNilai = row.fbpb_id;
+                    $('#grid-transaksi_bpb_detail').datagrid('load','<?php echo site_url('transaksi/bpb/index_detail'); ?>?grid=true&nilai='+transaksiBpbNilai);
+
+                    $('#bpb_diketahui').linkbutton({
+                        text    : '',
+                        iconCls : '',
+                        disabled: true
+                    });
+                    if(transaksiBpbSetuju){
+                        $('#bpb_disetujui').linkbutton({
+                            text    : 'Disetujui',
+                            iconCls : 'icon-approved',
+                            disabled: false
+                        });
+                        transaksiBpbDataSetuju = 1;
+                        $('#bpb_ditolak').linkbutton({
+                            text    : 'Ditolak',
+                            iconCls : 'icon-approved_denied',
+                            disabled: false
+                        });
+                    }
+                    else{
+                        $('#bpb_disetujui').linkbutton({
+                            text    : '',
+                            iconCls : '',
+                            disabled: true
+                        });
+                        $('#bpb_ditolak').linkbutton({
+                            text    : '',
+                            iconCls : '',
+                            disabled: true
+                        });
+                    }
+                }
+                if(row['e.name'] !== null && row['f.name'] === null){
+                    $('#bpb_edit').linkbutton('disable');
+                    $('#bpb_delete').linkbutton('disable');
+                    $('#bpb_ditolak').linkbutton({
+                        text    : '',
+                        iconCls : '',
+                        disabled: true
+                    });
+                    if(transaksiBpbSetuju && transaksiBpbTahu){
+                        if(row.fbpb_disetujui == transaksiBpbUser){
+                            $('#bpb_disetujui').linkbutton({
+                                text    : 'Batal Disetujui',
+                                iconCls : 'icon-approved_denied',
+                                disabled: false
+                            });
+                            transaksiBpbDataSetuju = 0;
+                            $('#bpb_diketahui').linkbutton({
+                                text    : '',
+                                iconCls : '',
+                                disabled: true
+                            });
+                        }
+                        else{
+                            $('#bpb_disetujui').linkbutton({
+                                text    : '',
+                                iconCls : '',
+                                disabled: true
+                            });
+                            $('#bpb_diketahui').linkbutton({
+                                text    : 'Diketahui',
+                                iconCls : 'icon-approved',
+                                disabled: false
+                            });
+                            transaksiBpbDataTahu = 1;
+                        }
+                    }
+                    else if(transaksiBpbSetuju){
+                        $('#bpb_diketahui').linkbutton({
+                            text    : '',
+                            iconCls : '',
+                            disabled: true
+                        });
+                        if(row.fbpb_disetujui == transaksiBpbUser){
+                            $('#bpb_disetujui').linkbutton({
+                                text    : 'Batal Disetujui',
+                                iconCls : 'icon-approved_denied',
+                                disabled: false
+                            });
+                            transaksiBpbDataSetuju = 0;
+                        }
+                        else{
+                            $('#bpb_disetujui').linkbutton({
+                                text    : '',
+                                iconCls : '',
+                                disabled: true
+                            });
+                        }
+                    }
+                    else if(transaksiBpbTahu){
+                        $('#bpb_disetujui').linkbutton({
+                            text    : '',
+                            iconCls : '',
+                            disabled: true
+                        });
+                        if(row.fbpb_disetujui == transaksiBpbUser){
+                            $('#bpb_diketahui').linkbutton({
+                                text    : '',
+                                iconCls : '',
+                                disabled: true
+                            });
+                        }
+                        else{
+                           $('#bpb_diketahui').linkbutton({
+                                text    : 'Diketahui',
+                                iconCls : 'icon-approved',
+                                disabled: false
+                            });
+                            transaksiBpbDataTahu = 1;
+                        }
+                    }
+                    else{
+                        $('#bpb_diketahui').linkbutton({
+                            text    : '',
+                            iconCls : '',
+                            disabled: true
+                        });
+                        $('#bpb_disetujui').linkbutton({
+                            text    : '',
+                            iconCls : '',
+                            disabled: true
+                        });
+                    }
+                }
+                if(row['e.name'] !== null && row['f.name'] !== null){
+                    $('#bpb_edit').linkbutton('disable');
+                    $('#bpb_delete').linkbutton('disable');
+                    $('#bpb_disetujui').linkbutton({
+                        text    : '',
+                        iconCls : '',
+                        disabled: true
+                    });
+                    $('#bpb_ditolak').linkbutton({
+                            text    : '',
+                            iconCls : '',
+                            disabled: true
+                        });
+                    if(transaksiBpbTahu){
+                        if(row.fbpb_diketahui == transaksiBpbUser){
+                            $('#bpb_diketahui').linkbutton({
+                                text    : 'Batal Diketahui',
+                                iconCls : 'icon-approved_denied',
+                                disabled: false
+                            });
+                            transaksiBpbDataTahu = 0;
+                        }
+                        else{
+                            $('#bpb_diketahui').linkbutton({
+                                text    : '',
+                                iconCls : '',
+                                disabled: true
+                            });
+                        }
+                    }
+                    else{
+                        $('#bpb_diketahui').linkbutton({
+                            text    : '',
+                            iconCls : '',
+                            disabled: true
+                        });
+                    }
+                }
+            }
 	},        
         onDblClickRow: function(index,row){
             transaksiBpbUpdate();
 	},
         onSortColumn: function(sort,order){
-            headerRefresh();
+            //transaksiBpbRefresh();
+            transaksiBpbFirstLoad()
         }
         }).datagrid('enableFilter');
     
-    function headerRefresh() {
+    function transaksiBpbRefresh() {
         $('#bpb_edit').linkbutton('disable');
         $('#bpb_delete').linkbutton('disable');
         $('#bpb_detail_new').linkbutton('disable');
@@ -153,9 +341,34 @@
         $('#bpb_detail_refresh').linkbutton('disable');
             
         $('#grid-transaksi_bpb').datagrid('reload');
-        nilai=null;
-        $('#grid-transaksi_bpb_detail').datagrid('load','<?php echo site_url('transaksi/bpb/index_detail'); ?>?grid=true&nilai='+nilai);
+        transaksiBpbNilai=null;
+        $('#grid-transaksi_bpb_detail').datagrid('load','<?php echo site_url('transaksi/bpb/index_detail'); ?>?grid=true&nilai='+transaksiBpbNilai);
         $('#grid-transaksi_bpb_detail').datagrid('reload');
+        
+    }
+    
+    function transaksiBpbFirstLoad() {
+        $('#bpb_edit').linkbutton('disable');
+        $('#bpb_delete').linkbutton('disable');
+        $('#bpb_disetujui').linkbutton({
+            text    : '',
+            iconCls : '',
+            disabled: true
+        });
+        $('#bpb_diketahui').linkbutton({
+            text    : '',
+            iconCls : '',
+            disabled: true
+        });
+        $('#bpb_ditolak').linkbutton({
+            text    : '',
+            iconCls : '',
+            disabled: true
+        });
+        $('#bpb_detail_new').linkbutton('disable');
+        $('#bpb_detail_edit').linkbutton('disable');
+        $('#bpb_detail_delete').linkbutton('disable');
+        $('#bpb_detail_refresh').linkbutton('disable');
         
     }
     
@@ -190,7 +403,7 @@
                 var result = eval('('+result+')');
                 if(result.success){
                     $('#dlg-transaksi_bpb').dialog('close');
-                    headerRefresh();
+                    transaksiBpbRefresh();
                     $.messager.show({
                         title: 'Info',
                         msg: 'Data Berhasil Disimpan'
@@ -212,7 +425,7 @@
                 if (r){
                     $.post('<?php echo site_url('transaksi/bpb/delete'); ?>',{fbpb_id:row.fbpb_id},function(result){
                         if (result.success){
-                            headerRefresh();
+                            transaksiBpbRefresh();
                             $.messager.show({
                                 title: 'Info',
                                 msg: 'Hapus Data Berhasil'
@@ -277,7 +490,7 @@
             $('#dlg-transaksi_bpb_detail').dialog({modal: true}).dialog('open').dialog('setTitle','Tambah Data');
             $('#fm-transaksi_bpb_detail').form('clear');
             url = '<?php echo site_url('transaksi/bpb/detailCreate'); ?>';
-            $('#fbpb_detail_header').numberbox('setValue',nilai).numberbox({readonly: true});
+            $('#fbpb_detail_header').numberbox('setValue',transaksiBpbNilai).numberbox({readonly: true});
         }
         else
         {
@@ -441,7 +654,7 @@
         </div>
         <div class="fitem">
             <label for="type">Keterangan</label>
-            <input type="text" id="fbpb_detail_ket" name="fbpb_detail_ket" style="width:300px;" class="easyui-textbox" required="true"/>
+            <input type="text" id="fbpb_detail_ket" name="fbpb_detail_ket" style="width:300px;" class="easyui-textbox"/>
         </div>
     </form>
 </div>

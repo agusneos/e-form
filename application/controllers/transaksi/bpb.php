@@ -13,9 +13,11 @@ class Bpb extends CI_Controller {
          // mencegah user yang belum login untuk mengakses halaman ini
         $auth->restrict();
         
+        $dept = $this->session->userdata('user_departemen');
+        
         if (isset($_GET['grid']))
         {
-            echo $this->record->index(); 
+            echo $this->record->index($dept); 
         }
         else 
         {
@@ -30,12 +32,16 @@ class Bpb extends CI_Controller {
         
         if(!isset($_POST))	
             show_404();
-
-        $fbpb_tanggal      = addslashes($_POST['fbpb_tanggal']);
-        $fbpb_nik          = addslashes($_POST['fbpb_nik']);
-        $fbpb_bagian       = intval(addslashes($_POST['fbpb_bagian']));
         
-        if($this->record->create($fbpb_tanggal, $fbpb_nik, $fbpb_bagian))
+        $user_id = $this->session->userdata('id');
+        
+        $fbpb_tanggal       = addslashes($_POST['fbpb_tanggal']);
+        $fbpb_nik           = addslashes($_POST['fbpb_nik']);
+        $fbpb_bagian        = intval(addslashes($_POST['fbpb_bagian']));
+        $fbpb_keterangan    = addslashes($_POST['fbpb_keterangan']);
+        
+        if($this->record->create($fbpb_tanggal, $fbpb_nik, $fbpb_bagian, 
+                                 $fbpb_keterangan, $user_id))
         {
             echo json_encode(array('success'=>true));
         }
@@ -53,11 +59,13 @@ class Bpb extends CI_Controller {
         if(!isset($_POST))	
             show_404();
 
-        $fbpb_tanggal      = addslashes($_POST['fbpb_tanggal']);
-        $fbpb_nik          = addslashes($_POST['fbpb_nik']);
-        $fbpb_bagian       = intval(addslashes($_POST['fbpb_bagian']));
+        $fbpb_tanggal       = addslashes($_POST['fbpb_tanggal']);
+        $fbpb_nik           = addslashes($_POST['fbpb_nik']);
+        $fbpb_bagian        = intval(addslashes($_POST['fbpb_bagian']));
+        $fbpb_keterangan    = addslashes($_POST['fbpb_keterangan']);
         
-        if($this->record->update($fbpb_id, $fbpb_tanggal, $fbpb_nik, $fbpb_bagian))
+        if($this->record->update($fbpb_id, $fbpb_tanggal, $fbpb_nik, $fbpb_bagian, 
+                                 $fbpb_keterangan))
         {
             echo json_encode(array('success'=>true));
         }
@@ -184,7 +192,10 @@ class Bpb extends CI_Controller {
         $auth       = new Auth();
         $auth->restrict();
         
-        echo $this->record->getKaryawan();
+        $q = isset($_POST['q']) ? strval($_POST['q']) : '';
+        
+        $dept = $this->session->userdata('user_departemen');
+        echo $this->record->getKaryawan($dept, $q);
     }
     
     function getDept()
@@ -201,6 +212,79 @@ class Bpb extends CI_Controller {
         $auth->restrict();
         
         echo $this->record->enumField('fbpb', 'fbpb_jenis');
+    }
+    
+    function getUser()
+    {
+        $auth       = new Auth();
+        $auth->restrict();
+        
+        $id = $this->session->userdata('id');
+        echo $this->record->getUser($id);
+    }
+    
+    function disetujui()
+    {
+        $auth       = new Auth();
+        $auth->restrict();
+        
+        if(!isset($_POST))	
+            show_404();
+
+        $fbpb_id           = intval(addslashes($_POST['fbpb_id']));
+        $fbpb_disetujui    = intval(addslashes($_POST['fbpb_disetujui']));
+        
+        if($this->record->disetujui($fbpb_id, $fbpb_disetujui))
+        {
+            echo json_encode(array('success'=>true));
+        }
+        else
+        {
+            echo json_encode(array('success'=>false));
+        }
+    }
+    
+    function diketahui()
+    {
+        $auth       = new Auth();
+        $auth->restrict();
+        
+        if(!isset($_POST))	
+            show_404();
+
+        $fbpb_id           = intval(addslashes($_POST['fbpb_id']));
+        $fbpb_diketahui    = intval(addslashes($_POST['fbpb_diketahui']));
+        
+        if($this->record->diketahui($fbpb_id, $fbpb_diketahui))
+        {
+            echo json_encode(array('success'=>true));
+        }
+        else
+        {
+            echo json_encode(array('success'=>false));
+        }
+    }
+    
+    function ditolak()
+    {
+        $auth       = new Auth();
+        $auth->restrict();
+        
+        if(!isset($_POST))	
+            show_404();
+
+        $fbpb_id           = intval(addslashes($_POST['fbpb_id']));
+        $fbpb_ditolak      = intval(addslashes($_POST['fbpb_ditolak']));
+        $fbpb_keterangan   = addslashes($_POST['fbpb_keterangan']);
+        
+        if($this->record->ditolak($fbpb_id, $fbpb_ditolak, $fbpb_keterangan))
+        {
+            echo json_encode(array('success'=>true));
+        }
+        else
+        {
+            echo json_encode(array('success'=>false));
+        }
     }
                 
 }

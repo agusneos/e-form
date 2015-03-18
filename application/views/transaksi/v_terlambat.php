@@ -58,22 +58,25 @@
 </script>
 <!-- Data Grid -->
 <table id="grid-transaksi_terlambat"
-    data-options="pageSize:50, multiSort:true, remoteSort:false, rownumbers:true, singleSelect:true, 
+    data-options="pageSize:50, multiSort:true, remoteSort:true, rownumbers:true, singleSelect:true, 
                 fit:true, fitColumns:false, toolbar:toolbar_transaksi_terlambat">
     <thead>
         <tr>
             <th data-options="field:'ck',checkbox:true" ></th>
-            <th data-options="field:'fterlambat_id'"            width="50"  halign="center" align="center" sortable="true">ID</th>
-            <th data-options="field:'fterlambat_tanggal'"       width="100" halign="center" align="center" sortable="true">Tanggal</th>
-            <th data-options="field:'d.karyawan_nama'"          width="150" halign="center" align="center" sortable="true">Nama Karyawan</th>
-            <th data-options="field:'c.departemen_nama'"        width="100" halign="center" align="center" sortable="true">Departemen</th>
-            <th data-options="field:'b.departemen_nama'"        width="100" halign="center" align="center" sortable="true">Bagian</th>
-            <th data-options="field:'fterlambat_shift'"         width="50" halign="center" align="center" sortable="true">Shift</th>
-            <th data-options="field:'fterlambat_waktu'"         width="100" halign="center" align="center" sortable="true">Waktu</th>
-            <th data-options="field:'fterlambat_alasan'"        width="200" halign="center" align="center" sortable="true">Alasan</th>
-            <th data-options="field:'fterlambat_timestamp'"     width="150" halign="center" align="center" sortable="true">Tanggal Pembuatan</th>
-            <th data-options="field:'fterlambat_disetujui'"     width="70"  halign="center" align="center" sortable="true">Disetujui</th>
-            <th data-options="field:'fterlambat_diketahui'"     width="70"  halign="center" align="center" sortable="true">Diketahui</th>
+            <th data-options="field:'fterlambat_id'"            width="50"  halign="center" align="center" sortable="true" >ID</th>
+            <th data-options="field:'fterlambat_tanggal'"       width="100" halign="center" align="center" sortable="true" >Tanggal</th>
+            <th data-options="field:'d.karyawan_nama'"          width="150" halign="center" align="center" sortable="true" >Nama Karyawan</th>
+            <th data-options="field:'c.departemen_nama'"        width="100" halign="center" align="center" sortable="true" >Departemen</th>
+            <th data-options="field:'b.departemen_nama'"        width="100" halign="center" align="center" sortable="true" >Bagian</th>
+            <th data-options="field:'fterlambat_shift'"         width="50"  halign="center" align="center" sortable="true" >Shift</th>
+            <th data-options="field:'fterlambat_waktu'"         width="100" halign="center" align="center" sortable="true" >Waktu</th>
+            <th data-options="field:'fterlambat_alasan'"        width="200" halign="center" align="center" sortable="true" >Alasan</th>
+            <th data-options="field:'fterlambat_keterangan'"    width="150" halign="center" align="center" sortable="true" >Keterangan</th>
+            <th data-options="field:'e.name'"                   width="70"  halign="center" align="center" sortable="true" >Disetujui</th>
+            <th data-options="field:'f.name'"                   width="70"  halign="center" align="center" sortable="true" >Diketahui</th>
+            <th data-options="field:'g.name'"                   width="70"  halign="center" align="center" sortable="true" >Ditolak</th>
+            <th data-options="field:'h.name'"                   width="70"  halign="center" align="center" sortable="true" >Dibuat</th>
+            <th data-options="field:'fterlambat_timestamp'"     width="140" halign="center" align="center" sortable="true" >Tanggal Pembuatan</th>
         </tr>
     </thead>
 </table>
@@ -97,8 +100,23 @@
     },{
         text    : 'Refresh',
         iconCls : 'icon-reload',
-        handler : function(){$('#grid-transaksi_terlambat').datagrid('reload');}
+        handler : function(){transaksiTerlambatRefresh();}
+    },{
+        id      : 'terlambat_disetujui',
+        handler : function(){transaksiTerlambatDisetujui();}
+    },{
+        id      : 'terlambat_ditolak',
+        handler : function(){transaksiTerlambatDitolak();}
+    },{
+        id      : 'terlambat_diketahui',
+        handler : function(){transaksiTerlambatDiketahui();}
     }];
+    
+    var transaksiTerlambatUser        = <?php echo $this->session->userdata('id');?>;
+    var transaksiTerlambatSetuju      = <?php echo $this->session->userdata('user_disetujui');?>;
+    var transaksiTerlambatTahu        = <?php echo $this->session->userdata('user_diketahui');?>;
+    var transaksiTerlambatDataSetuju  = null;
+    var transaksiTerlambatDataTahu    = null;
     
     $('#grid-transaksi_terlambat').datagrid({view:scrollview,remoteFilter:true,
         url:'<?php echo site_url('transaksi/terlambat/index'); ?>?grid=true'})
@@ -106,21 +124,398 @@
         onLoadSuccess: function(data){
             $('#terlambat_edit').linkbutton('disable');
             $('#terlambat_delete').linkbutton('disable');
+            $('#terlambat_disetujui').linkbutton({
+                text    : '',
+                iconCls : '',
+                disabled: true
+            });
+            $('#terlambat_diketahui').linkbutton({
+                text    : '',
+                iconCls : '',
+                disabled: true
+            });
+            $('#terlambat_ditolak').linkbutton({
+                text    : '',
+                iconCls : '',
+                disabled: true
+            });
         },
         onClickRow: function(index,row){
-            $('#terlambat_edit').linkbutton('enable');
-            $('#terlambat_delete').linkbutton('enable');
+            if(row['g.name'] !== null){
+                $('#terlambat_edit').linkbutton('disable');
+                $('#terlambat_delete').linkbutton('disable');
+                $('#terlambat_disetujui').linkbutton({
+                    text    : '',
+                    iconCls : '',
+                    disabled: true
+                });
+                $('#terlambat_diketahui').linkbutton({
+                    text    : '',
+                    iconCls : '',
+                    disabled: true
+                });
+                $('#terlambat_ditolak').linkbutton({
+                    text    : '',
+                    iconCls : '',
+                    disabled: true
+                });
+            }
+            else {
+                if(row['e.name'] === null && row['f.name'] === null){                
+                    $('#terlambat_edit').linkbutton('enable');
+                    $('#terlambat_delete').linkbutton('enable');
+                    $('#terlambat_diketahui').linkbutton({
+                        text    : '',
+                        iconCls : '',
+                        disabled: true
+                    });
+                    if(transaksiTerlambatSetuju){
+                        $('#terlambat_disetujui').linkbutton({
+                            text    : 'Disetujui',
+                            iconCls : 'icon-approved',
+                            disabled: false
+                        });
+                        transaksiTerlambatDataSetuju = 1;
+                        $('#terlambat_ditolak').linkbutton({
+                            text    : 'Ditolak',
+                            iconCls : 'icon-approved_denied',
+                            disabled: false
+                        });
+                    }
+                    else{
+                        $('#terlambat_disetujui').linkbutton({
+                            text    : '',
+                            iconCls : '',
+                            disabled: true
+                        });
+                        $('#terlambat_ditolak').linkbutton({
+                            text    : '',
+                            iconCls : '',
+                            disabled: true
+                        });
+                    }
+                }
+                if(row['e.name'] !== null && row['f.name'] === null){
+                    $('#terlambat_edit').linkbutton('disable');
+                    $('#terlambat_delete').linkbutton('disable');
+                    $('#terlambat_ditolak').linkbutton({
+                        text    : '',
+                        iconCls : '',
+                        disabled: true
+                    });
+                    if(transaksiTerlambatSetuju && transaksiTerlambatTahu){
+                        if(row.fterlambat_disetujui == transaksiTerlambatUser){
+                            $('#terlambat_disetujui').linkbutton({
+                                text    : 'Batal Disetujui',
+                                iconCls : 'icon-approved_denied',
+                                disabled: false
+                            });
+                            transaksiTerlambatDataSetuju = 0;
+                            $('#terlambat_diketahui').linkbutton({
+                                text    : '',
+                                iconCls : '',
+                                disabled: true
+                            });
+                        }
+                        else{
+                            $('#terlambat_disetujui').linkbutton({
+                                text    : '',
+                                iconCls : '',
+                                disabled: true
+                            });
+                            $('#terlambat_diketahui').linkbutton({
+                                text    : 'Diketahui',
+                                iconCls : 'icon-approved',
+                                disabled: false
+                            });
+                            transaksiTerlambatDataTahu = 1;
+                        }
+                    }
+                    else if(transaksiTerlambatSetuju){
+                        $('#terlambat_diketahui').linkbutton({
+                            text    : '',
+                            iconCls : '',
+                            disabled: true
+                        });
+                        if(row.fterlambat_disetujui == transaksiTerlambatUser){
+                            $('#terlambat_disetujui').linkbutton({
+                                text    : 'Batal Disetujui',
+                                iconCls : 'icon-approved_denied',
+                                disabled: false
+                            });
+                            transaksiTerlambatDataSetuju = 0;
+                        }
+                        else{
+                            $('#terlambat_disetujui').linkbutton({
+                                text    : '',
+                                iconCls : '',
+                                disabled: true
+                            });
+                        }
+                    }
+                    else if(transaksiTerlambatTahu){
+                        $('#terlambat_disetujui').linkbutton({
+                            text    : '',
+                            iconCls : '',
+                            disabled: true
+                        });
+                        if(row.fterlambat_disetujui == transaksiTerlambatUser){
+                            $('#terlambat_diketahui').linkbutton({
+                                text    : '',
+                                iconCls : '',
+                                disabled: true
+                            });
+                        }
+                        else{
+                           $('#terlambat_diketahui').linkbutton({
+                                text    : 'Diketahui',
+                                iconCls : 'icon-approved',
+                                disabled: false
+                            });
+                            transaksiTerlambatDataTahu = 1;
+                        }
+                    }
+                    else{
+                        $('#terlambat_diketahui').linkbutton({
+                            text    : '',
+                            iconCls : '',
+                            disabled: true
+                        });
+                        $('#terlambat_disetujui').linkbutton({
+                            text    : '',
+                            iconCls : '',
+                            disabled: true
+                        });
+                    }
+                }
+                if(row['e.name'] !== null && row['f.name'] !== null){
+                    $('#terlambat_edit').linkbutton('disable');
+                    $('#terlambat_delete').linkbutton('disable');
+                    $('#terlambat_disetujui').linkbutton({
+                        text    : '',
+                        iconCls : '',
+                        disabled: true
+                    });
+                    $('#terlambat_ditolak').linkbutton({
+                            text    : '',
+                            iconCls : '',
+                            disabled: true
+                        });
+                    if(transaksiTerlambatTahu){
+                        if(row.fterlambat_diketahui == transaksiTerlambatUser){
+                            $('#terlambat_diketahui').linkbutton({
+                                text    : 'Batal Diketahui',
+                                iconCls : 'icon-approved_denied',
+                                disabled: false
+                            });
+                            transaksiTerlambatDataTahu = 0;
+                        }
+                        else{
+                            $('#terlambat_diketahui').linkbutton({
+                                text    : '',
+                                iconCls : '',
+                                disabled: true
+                            });
+                        }
+                    }
+                    else{
+                        $('#terlambat_diketahui').linkbutton({
+                            text    : '',
+                            iconCls : '',
+                            disabled: true
+                        });
+                    }
+                }
+            }
         },
         onDblClickRow: function(index,row){
-            transaksiTerlambatUpdate();
+            if(row['e.name'] === null && row['g.name'] === null){
+                transaksiTerlambatUpdate();
+            }
+	},
+        rowStyler: function(index,row){
+            if (row['e.name'] !== null && row['f.name'] !== null){
+                return 'background-color:#90EE90;color:#000;';
+            }
+            if (row['e.name'] !== null){
+                return 'background-color:#87CEFA;color:#000;';
+            }
+            if (row['g.name'] !== null){
+                return 'background-color:#FFB6C1;color:#000;';
+            }
 	}
-        }).datagrid('enableFilter');
+        }).datagrid('enableFilter', [{
+            field:'e.name',
+            type:'textbox',
+            op:['contains','is']
+        }, {
+            field:'f.name',
+            type:'textbox',
+            op:['contains','is']
+        }, {
+            field:'g.name',
+            type:'textbox',
+            op:['contains','is']
+        }, {
+            field:'h.name',
+            type:'textbox',
+            op:['contains','is']
+        }
+        ]);
+    
+    function transaksiTerlambatRefresh() {
+        $('#terlambat_edit').linkbutton('disable');
+        $('#terlambat_delete').linkbutton('disable');
+        $('#terlambat_disetujui').linkbutton({
+            text    : '',
+            iconCls : '',
+            disabled: true
+        });
+        $('#terlambat_diketahui').linkbutton({
+            text    : '',
+            iconCls : '',
+            disabled: true
+        });
+        $('#terlambat_ditolak').linkbutton({
+            text    : '',
+            iconCls : '',
+            disabled: true
+        });
+        $('#grid-transaksi_terlambat').datagrid('reload');
+    }
+    
+    function transaksiTerlambatDisetujui() {
+        var row = $('#grid-transaksi_terlambat').datagrid('getSelected');
+        if (row){
+            if(transaksiTerlambatDataSetuju === 1){
+                $.messager.confirm('Konfirmasi','Anda yakin ingin Menyetujui terlambat no. '+row.fterlambat_id+' ?',function(r){
+                    if (r){
+                        $.post('<?php echo site_url('transaksi/terlambat/disetujui'); ?>',{fterlambat_id:row.fterlambat_id,fterlambat_disetujui:transaksiTerlambatUser},function(result){
+                            if (result.success){
+                                transaksiTerlambatRefresh();
+                                $.messager.show({
+                                    title: 'Info',
+                                    msg: 'Update Data Berhasil'
+                                });
+                            } else {
+                                $.messager.show({
+                                    title: 'Error',
+                                    msg: 'Update Data Gagal'
+                                });
+                            }
+                        },'json');
+                    }
+                });
+            }
+            else if(transaksiTerlambatDataSetuju === 0){
+                $.messager.confirm('Konfirmasi','Anda yakin ingin Batal Menyetujui terlambat no. '+row.fterlambat_id+' ?',function(r){
+                    if (r){
+                        $.post('<?php echo site_url('transaksi/terlambat/disetujui'); ?>',{fterlambat_id:row.fterlambat_id,fterlambat_disetujui:0},function(result){
+                            if (result.success){
+                                transaksiTerlambatRefresh();
+                                $.messager.show({
+                                    title: 'Info',
+                                    msg: 'Update Data Berhasil'
+                                });
+                            } else {
+                                $.messager.show({
+                                    title: 'Error',
+                                    msg: 'Update Data Gagal'
+                                });
+                            }
+                        },'json');
+                    }
+                });
+            }
+        }
+        else
+        {
+             $.messager.alert('Info','Data belum dipilih !','info');
+        }
+    }
+    
+    function transaksiTerlambatDiketahui() {
+        var row = $('#grid-transaksi_terlambat').datagrid('getSelected');
+        if (row){
+            if(transaksiTerlambatDataTahu === 1){
+                $.messager.confirm('Konfirmasi','Anda yakin ingin Mengetahui terlambat no. '+row.fterlambat_id+' ?',function(r){
+                    if (r){
+                        $.post('<?php echo site_url('transaksi/terlambat/diketahui'); ?>',{fterlambat_id:row.fterlambat_id,fterlambat_diketahui:transaksiTerlambatUser},function(result){
+                            if (result.success){
+                                transaksiTerlambatRefresh();
+                                $.messager.show({
+                                    title: 'Info',
+                                    msg: 'Update Data Berhasil'
+                                });
+                            } else {
+                                $.messager.show({
+                                    title: 'Error',
+                                    msg: 'Update Data Gagal'
+                                });
+                            }
+                        },'json');
+                    }
+                });
+            }
+            else if(transaksiTerlambatDataTahu === 0){
+                $.messager.confirm('Konfirmasi','Anda yakin ingin Batal Mengetahui terlambat no. '+row.fterlambat_id+' ?',function(r){
+                    if (r){
+                        $.post('<?php echo site_url('transaksi/terlambat/diketahui'); ?>',{fterlambat_id:row.fterlambat_id,fterlambat_diketahui:0},function(result){
+                            if (result.success){
+                                transaksiTerlambatRefresh();
+                                $.messager.show({
+                                    title: 'Info',
+                                    msg: 'Update Data Berhasil'
+                                });
+                            } else {
+                                $.messager.show({
+                                    title: 'Error',
+                                    msg: 'Update Data Gagal'
+                                });
+                            }
+                        },'json');
+                    }
+                });
+            }
+        }
+        else
+        {
+             $.messager.alert('Info','Data belum dipilih !','info');
+        }
+    }
+    
+    function transaksiTerlambatDitolak(){
+        var row = $('#grid-transaksi_terlambat').datagrid('getSelected');
+        if (row){
+            $.messager.prompt('Konfirmasi','Mengapa anda ingin Menolak terlambat no. '+row.fterlambat_id+' ?',function(r){
+                if (r){
+                    $.post('<?php echo site_url('transaksi/terlambat/ditolak'); ?>',{fterlambat_id:row.fterlambat_id,fterlambat_ditolak:transaksiTerlambatUser,fterlambat_keterangan:r},function(result){
+                        if (result.success){
+                            transaksiTerlambatRefresh();
+                            $.messager.show({
+                                title: 'Info',
+                                msg: 'Hapus Data Berhasil'
+                            });
+                        } else {
+                            $.messager.show({
+                                title: 'Error',
+                                msg: 'Hapus Data Gagal'
+                            });
+                        }
+                    },'json');
+                }
+            });
+        }
+        else
+        {
+             $.messager.alert('Info','Data belum dipilih !','info');
+        }
+    }
     
     function transaksiTerlambatCreate() {
         $('#dlg-transaksi_terlambat').dialog({modal: true}).dialog('open').dialog('setTitle','Tambah Data');
         $('#fm-transaksi_terlambat').form('clear');
         url = '<?php echo site_url('transaksi/terlambat/create'); ?>';
-        //$('#nik').textbox({disabled: false});
     }
     
     function transaksiTerlambatUpdate() {
@@ -129,7 +524,6 @@
             $('#dlg-transaksi_terlambat').dialog({modal: true}).dialog('open').dialog('setTitle','Edit Data');
             $('#fm-transaksi_terlambat').form('load',row);
             url = '<?php echo site_url('transaksi/terlambat/update'); ?>/' + row.fterlambat_id;
-            //$('#nik').textbox({disabled: true});
         }
         else
         {
@@ -147,7 +541,7 @@
                 var result = eval('('+result+')');
                 if(result.success){
                     $('#dlg-transaksi_terlambat').dialog('close');
-                    $('#grid-transaksi_terlambat').datagrid('reload');
+                    transaksiTerlambatRefresh();
                     $.messager.show({
                         title: 'Info',
                         msg: 'Data Berhasil Disimpan'
@@ -169,7 +563,7 @@
                 if (r){
                     $.post('<?php echo site_url('transaksi/terlambat/delete'); ?>',{fterlambat_id:row.fterlambat_id},function(result){
                         if (result.success){
-                            $('#grid-transaksi_terlambat').datagrid('reload');
+                            transaksiTerlambatRefresh();
                             $.messager.show({
                                 title: 'Info',
                                 msg: 'Hapus Data Berhasil'
@@ -226,15 +620,32 @@
         </div>
         <div class="fitem">
             <label for="type">Nama Karyawan</label>
-            <input type="text" id="fterlambat_nik" name="fterlambat_nik" style="width:200px;" class="easyui-combobox" required="true"
-                data-options="url:'<?php echo site_url('transaksi/terlambat/getKaryawan'); ?>',
-                method:'get', valueField:'karyawan_nik', textField:'karyawan_nama', panelHeight:'300'" />
+            <input type="text" id="fterlambat_nik" name="fterlambat_nik" style="width:200px;" class="easyui-combogrid" required="true"
+                data-options="
+                    panelWidth: 500,
+                    idField: 'karyawan_nik',
+                    textField: 'karyawan_nama',
+                    url:'<?php echo site_url('transaksi/terlambat/getKaryawan'); ?>',
+                    mode:'remote',
+                    fitColumns: true,
+                    columns: [[
+                        {field:'karyawan_nik',title:'NIK',width:50,align:'center'},
+                        {field:'karyawan_nama',title:'Nama',width:120,halign:'center'},
+                        {field:'c.departemen_nama',title:'Departemen',width:80,align:'center'},
+                        {field:'b.departemen_nama',title:'Bagian',width:80,align:'center'}
+                    ]],
+                    onSelect: function (rowIndex, rowData) {
+                        var g = $('#fterlambat_nik').combogrid('grid');
+                        var r = g.datagrid('getSelected');
+                        $('#fterlambat_bagian').combobox('setValue', r.karyawan_bagian);
+                    }
+            " />
         </div>
         <div class="fitem">
             <label for="type">Bagian</label>
-            <input type="text" id="fterlambat_bagian" name="fterlambat_bagian" style="width:200px;" class="easyui-combobox" required="true"
+            <input type="text" id="fterlambat_bagian" name="fterlambat_bagian" style="width:200px;" class="easyui-combobox"
                 data-options="url:'<?php echo site_url('transaksi/terlambat/getDept'); ?>',
-                method:'get', valueField:'id', textField:'bagian', groupField:'departemen', panelHeight:'300'" />
+                method:'get', valueField:'id', textField:'bagian', groupField:'departemen', panelHeight:'300', readonly: true" />
         </div>
         <div class="fitem">
             <label for="type">Shift</label>
@@ -249,6 +660,10 @@
         <div class="fitem">
             <label for="type">Alasan</label>
             <input type="text" id="fterlambat_alasan" name="fterlambat_alasan" style="width:350px;" class="easyui-textbox" required="true"/>
+        </div>
+        <div class="fitem">
+            <label for="type">Keterangan</label>
+            <input type="text" id="fterlambat_keterangan" name="fterlambat_keterangan" style="width:350px;" class="easyui-textbox"/>
         </div>
     </form>
 </div>

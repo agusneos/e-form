@@ -58,22 +58,25 @@
 </script>
 <!-- Data Grid -->
 <table id="grid-transaksi_pjken"
-    data-options="pageSize:50, multiSort:true, remoteSort:false, rownumbers:true, singleSelect:true, 
+    data-options="pageSize:50, multiSort:true, remoteSort:true, rownumbers:true, singleSelect:true, 
                 fit:true, fitColumns:false, toolbar:toolbar_transaksi_pjken">
     <thead>
         <tr>
             <th data-options="field:'ck',checkbox:true" ></th>
-            <th data-options="field:'fpjken_id'"            width="50"  halign="center" align="center" sortable="true">ID</th>
-            <th data-options="field:'fpjken_tanggal'"       width="100" halign="center" align="center" sortable="true">Tanggal</th>
-            <th data-options="field:'d.karyawan_nama'"      width="150" halign="center" align="center" sortable="true">Nama Karyawan</th>
-            <th data-options="field:'c.departemen_nama'"    width="100" halign="center" align="center" sortable="true">Departemen</th>
-            <th data-options="field:'b.departemen_nama'"    width="100" halign="center" align="center" sortable="true">Bagian</th>
-            <th data-options="field:'fpjken_pinjam'"        width="100" halign="center" align="center" sortable="true">Tgl. Pinjam</th>
-            <th data-options="field:'fpjken_mobil'"         width="100" halign="center" align="center" sortable="true">No. Mobil</th>
-            <th data-options="field:'fpjken_keperluan'"     width="150" halign="center" align="center" sortable="true">Keperluan</th>
-            <th data-options="field:'fpjken_timestamp'"     width="150" halign="center" align="center" sortable="true">Tanggal Pembuatan</th>
-            <th data-options="field:'fpjken_disetujui'"     width="70"  halign="center" align="center" sortable="true">Disetujui</th>
-            <th data-options="field:'fpjken_diketahui'"     width="70"  halign="center" align="center" sortable="true">Diketahui</th>
+            <th data-options="field:'fpjken_id'"            width="50"  halign="center" align="center" sortable="true" >ID</th>
+            <th data-options="field:'fpjken_tanggal'"       width="100" halign="center" align="center" sortable="true" >Tanggal</th>
+            <th data-options="field:'d.karyawan_nama'"      width="150" halign="center" align="center" sortable="true" >Nama Karyawan</th>
+            <th data-options="field:'c.departemen_nama'"    width="100" halign="center" align="center" sortable="true" >Departemen</th>
+            <th data-options="field:'b.departemen_nama'"    width="100" halign="center" align="center" sortable="true" >Bagian</th>
+            <th data-options="field:'fpjken_pinjam'"        width="100" halign="center" align="center" sortable="true" >Tgl. Pinjam</th>
+            <th data-options="field:'fpjken_mobil'"         width="100" halign="center" align="center" sortable="true" >No. Mobil</th>
+            <th data-options="field:'fpjken_keperluan'"     width="150" halign="center" align="center" sortable="true" >Keperluan</th>
+            <th data-options="field:'fpjken_keterangan'"     width="150" halign="center" align="center" sortable="true" >Keterangan</th>
+            <th data-options="field:'e.name'"               width="70"  halign="center" align="center" sortable="true" >Disetujui</th>
+            <th data-options="field:'f.name'"               width="70"  halign="center" align="center" sortable="true" >Diketahui</th>
+            <th data-options="field:'g.name'"               width="70"  halign="center" align="center" sortable="true" >Ditolak</th>
+            <th data-options="field:'h.name'"               width="70"  halign="center" align="center" sortable="true" >Dibuat</th>
+            <th data-options="field:'fpjken_timestamp'"     width="150" halign="center" align="center" sortable="true" >Tanggal Pembuatan</th>
         </tr>
     </thead>
 </table>
@@ -97,8 +100,23 @@
     },{
         text    : 'Refresh',
         iconCls : 'icon-reload',
-        handler : function(){$('#grid-transaksi_pjken').datagrid('reload');}
+        handler : function(){transaksiPjkenRefresh();}
+    },{
+        id      : 'pjken_disetujui',
+        handler : function(){transaksiPjkenDisetujui();}
+    },{
+        id      : 'pjken_ditolak',
+        handler : function(){transaksiPjkenDitolak();}
+    },{
+        id      : 'pjken_diketahui',
+        handler : function(){transaksiPjkenDiketahui();}
     }];
+    
+    var transaksiPjkenUser        = <?php echo $this->session->userdata('id');?>;
+    var transaksiPjkenSetuju      = <?php echo $this->session->userdata('user_disetujui');?>;
+    var transaksiPjkenTahu        = <?php echo $this->session->userdata('user_diketahui');?>;
+    var transaksiPjkenDataSetuju  = null;
+    var transaksiPjkenDataTahu    = null;
     
     $('#grid-transaksi_pjken').datagrid({view:scrollview,remoteFilter:true,
         url:'<?php echo site_url('transaksi/pjken/index'); ?>?grid=true'})
@@ -106,21 +124,398 @@
         onLoadSuccess: function(data){
             $('#pjken_edit').linkbutton('disable');
             $('#pjken_delete').linkbutton('disable');
+            $('#pjken_disetujui').linkbutton({
+                text    : '',
+                iconCls : '',
+                disabled: true
+            });
+            $('#pjken_diketahui').linkbutton({
+                text    : '',
+                iconCls : '',
+                disabled: true
+            });
+            $('#pjken_ditolak').linkbutton({
+                text    : '',
+                iconCls : '',
+                disabled: true
+            });
         },
         onClickRow: function(index,row){
-            $('#pjken_edit').linkbutton('enable');
-            $('#pjken_delete').linkbutton('enable');
+            if(row['g.name'] !== null){
+                $('#pjken_edit').linkbutton('disable');
+                $('#pjken_delete').linkbutton('disable');
+                $('#pjken_disetujui').linkbutton({
+                    text    : '',
+                    iconCls : '',
+                    disabled: true
+                });
+                $('#pjken_diketahui').linkbutton({
+                    text    : '',
+                    iconCls : '',
+                    disabled: true
+                });
+                $('#pjken_ditolak').linkbutton({
+                    text    : '',
+                    iconCls : '',
+                    disabled: true
+                });
+            }
+            else {
+                if(row['e.name'] === null && row['f.name'] === null){                
+                    $('#pjken_edit').linkbutton('enable');
+                    $('#pjken_delete').linkbutton('enable');
+                    $('#pjken_diketahui').linkbutton({
+                        text    : '',
+                        iconCls : '',
+                        disabled: true
+                    });
+                    if(transaksiPjkenSetuju){
+                        $('#pjken_disetujui').linkbutton({
+                            text    : 'Disetujui',
+                            iconCls : 'icon-approved',
+                            disabled: false
+                        });
+                        transaksiPjkenDataSetuju = 1;
+                        $('#pjken_ditolak').linkbutton({
+                            text    : 'Ditolak',
+                            iconCls : 'icon-approved_denied',
+                            disabled: false
+                        });
+                    }
+                    else{
+                        $('#pjken_disetujui').linkbutton({
+                            text    : '',
+                            iconCls : '',
+                            disabled: true
+                        });
+                        $('#pjken_ditolak').linkbutton({
+                            text    : '',
+                            iconCls : '',
+                            disabled: true
+                        });
+                    }
+                }
+                if(row['e.name'] !== null && row['f.name'] === null){
+                    $('#pjken_edit').linkbutton('disable');
+                    $('#pjken_delete').linkbutton('disable');
+                    $('#pjken_ditolak').linkbutton({
+                        text    : '',
+                        iconCls : '',
+                        disabled: true
+                    });
+                    if(transaksiPjkenSetuju && transaksiPjkenTahu){
+                        if(row.fpjken_disetujui == transaksiPjkenUser){
+                            $('#pjken_disetujui').linkbutton({
+                                text    : 'Batal Disetujui',
+                                iconCls : 'icon-approved_denied',
+                                disabled: false
+                            });
+                            transaksiPjkenDataSetuju = 0;
+                            $('#pjken_diketahui').linkbutton({
+                                text    : '',
+                                iconCls : '',
+                                disabled: true
+                            });
+                        }
+                        else{
+                            $('#pjken_disetujui').linkbutton({
+                                text    : '',
+                                iconCls : '',
+                                disabled: true
+                            });
+                            $('#pjken_diketahui').linkbutton({
+                                text    : 'Diketahui',
+                                iconCls : 'icon-approved',
+                                disabled: false
+                            });
+                            transaksiPjkenDataTahu = 1;
+                        }
+                    }
+                    else if(transaksiPjkenSetuju){
+                        $('#pjken_diketahui').linkbutton({
+                            text    : '',
+                            iconCls : '',
+                            disabled: true
+                        });
+                        if(row.fpjken_disetujui == transaksiPjkenUser){
+                            $('#pjken_disetujui').linkbutton({
+                                text    : 'Batal Disetujui',
+                                iconCls : 'icon-approved_denied',
+                                disabled: false
+                            });
+                            transaksiPjkenDataSetuju = 0;
+                        }
+                        else{
+                            $('#pjken_disetujui').linkbutton({
+                                text    : '',
+                                iconCls : '',
+                                disabled: true
+                            });
+                        }
+                    }
+                    else if(transaksiPjkenTahu){
+                        $('#pjken_disetujui').linkbutton({
+                            text    : '',
+                            iconCls : '',
+                            disabled: true
+                        });
+                        if(row.fpjken_disetujui == transaksiPjkenUser){
+                            $('#pjken_diketahui').linkbutton({
+                                text    : '',
+                                iconCls : '',
+                                disabled: true
+                            });
+                        }
+                        else{
+                           $('#pjken_diketahui').linkbutton({
+                                text    : 'Diketahui',
+                                iconCls : 'icon-approved',
+                                disabled: false
+                            });
+                            transaksiPjkenDataTahu = 1;
+                        }
+                    }
+                    else{
+                        $('#pjken_diketahui').linkbutton({
+                            text    : '',
+                            iconCls : '',
+                            disabled: true
+                        });
+                        $('#pjken_disetujui').linkbutton({
+                            text    : '',
+                            iconCls : '',
+                            disabled: true
+                        });
+                    }
+                }
+                if(row['e.name'] !== null && row['f.name'] !== null){
+                    $('#pjken_edit').linkbutton('disable');
+                    $('#pjken_delete').linkbutton('disable');
+                    $('#pjken_disetujui').linkbutton({
+                        text    : '',
+                        iconCls : '',
+                        disabled: true
+                    });
+                    $('#pjken_ditolak').linkbutton({
+                            text    : '',
+                            iconCls : '',
+                            disabled: true
+                        });
+                    if(transaksiPjkenTahu){
+                        if(row.fpjken_diketahui == transaksiPjkenUser){
+                            $('#pjken_diketahui').linkbutton({
+                                text    : 'Batal Diketahui',
+                                iconCls : 'icon-approved_denied',
+                                disabled: false
+                            });
+                            transaksiPjkenDataTahu = 0;
+                        }
+                        else{
+                            $('#pjken_diketahui').linkbutton({
+                                text    : '',
+                                iconCls : '',
+                                disabled: true
+                            });
+                        }
+                    }
+                    else{
+                        $('#pjken_diketahui').linkbutton({
+                            text    : '',
+                            iconCls : '',
+                            disabled: true
+                        });
+                    }
+                }
+            }
         },
         onDblClickRow: function(index,row){
-            transaksiPjkenUpdate();
+            if(row['e.name'] === null && row['g.name'] === null){
+                transaksiPjkenUpdate();
+            }
+	},
+        rowStyler: function(index,row){
+            if (row['e.name'] !== null && row['f.name'] !== null){
+                return 'background-color:#90EE90;color:#000;';
+            }
+            if (row['e.name'] !== null){
+                return 'background-color:#87CEFA;color:#000;';
+            }
+            if (row['g.name'] !== null){
+                return 'background-color:#FFB6C1;color:#000;';
+            }
 	}
-        }).datagrid('enableFilter');
+        }).datagrid('enableFilter', [{
+            field:'e.name',
+            type:'textbox',
+            op:['contains','is']
+        }, {
+            field:'f.name',
+            type:'textbox',
+            op:['contains','is']
+        }, {
+            field:'g.name',
+            type:'textbox',
+            op:['contains','is']
+        }, {
+            field:'h.name',
+            type:'textbox',
+            op:['contains','is']
+        }
+        ]);
+    
+    function transaksiPjkenRefresh() {
+        $('#pjken_edit').linkbutton('disable');
+        $('#pjken_delete').linkbutton('disable');
+        $('#pjken_disetujui').linkbutton({
+            text    : '',
+            iconCls : '',
+            disabled: true
+        });
+        $('#pjken_diketahui').linkbutton({
+            text    : '',
+            iconCls : '',
+            disabled: true
+        });
+        $('#pjken_ditolak').linkbutton({
+            text    : '',
+            iconCls : '',
+            disabled: true
+        });
+        $('#grid-transaksi_pjken').datagrid('reload');
+    }
+    
+    function transaksiPjkenDisetujui() {
+        var row = $('#grid-transaksi_pjken').datagrid('getSelected');
+        if (row){
+            if(transaksiPjkenDataSetuju === 1){
+                $.messager.confirm('Konfirmasi','Anda yakin ingin Menyetujui Pinjam Kendaraan no. '+row.fpjken_id+' ?',function(r){
+                    if (r){
+                        $.post('<?php echo site_url('transaksi/pjken/disetujui'); ?>',{fpjken_id:row.fpjken_id,fpjken_disetujui:transaksiPjkenUser},function(result){
+                            if (result.success){
+                                transaksiPjkenRefresh();
+                                $.messager.show({
+                                    title: 'Info',
+                                    msg: 'Update Data Berhasil'
+                                });
+                            } else {
+                                $.messager.show({
+                                    title: 'Error',
+                                    msg: 'Update Data Gagal'
+                                });
+                            }
+                        },'json');
+                    }
+                });
+            }
+            else if(transaksiPjkenDataSetuju === 0){
+                $.messager.confirm('Konfirmasi','Anda yakin ingin Batal Menyetujui Pinjam Kendaraan no. '+row.fpjken_id+' ?',function(r){
+                    if (r){
+                        $.post('<?php echo site_url('transaksi/pjken/disetujui'); ?>',{fpjken_id:row.fpjken_id,fpjken_disetujui:0},function(result){
+                            if (result.success){
+                                transaksiPjkenRefresh();
+                                $.messager.show({
+                                    title: 'Info',
+                                    msg: 'Update Data Berhasil'
+                                });
+                            } else {
+                                $.messager.show({
+                                    title: 'Error',
+                                    msg: 'Update Data Gagal'
+                                });
+                            }
+                        },'json');
+                    }
+                });
+            }
+        }
+        else
+        {
+             $.messager.alert('Info','Data belum dipilih !','info');
+        }
+    }
+    
+    function transaksiPjkenDiketahui() {
+        var row = $('#grid-transaksi_pjken').datagrid('getSelected');
+        if (row){
+            if(transaksiPjkenDataTahu === 1){
+                $.messager.confirm('Konfirmasi','Anda yakin ingin Mengetahui Pinjam Kendaraan no. '+row.fpjken_id+' ?',function(r){
+                    if (r){
+                        $.post('<?php echo site_url('transaksi/pjken/diketahui'); ?>',{fpjken_id:row.fpjken_id,fpjken_diketahui:transaksiPjkenUser},function(result){
+                            if (result.success){
+                                transaksiPjkenRefresh();
+                                $.messager.show({
+                                    title: 'Info',
+                                    msg: 'Update Data Berhasil'
+                                });
+                            } else {
+                                $.messager.show({
+                                    title: 'Error',
+                                    msg: 'Update Data Gagal'
+                                });
+                            }
+                        },'json');
+                    }
+                });
+            }
+            else if(transaksiPjkenDataTahu === 0){
+                $.messager.confirm('Konfirmasi','Anda yakin ingin Batal Mengetahui Pinjam Kendaraan no. '+row.fpjken_id+' ?',function(r){
+                    if (r){
+                        $.post('<?php echo site_url('transaksi/pjken/diketahui'); ?>',{fpjken_id:row.fpjken_id,fpjken_diketahui:0},function(result){
+                            if (result.success){
+                                transaksiPjkenRefresh();
+                                $.messager.show({
+                                    title: 'Info',
+                                    msg: 'Update Data Berhasil'
+                                });
+                            } else {
+                                $.messager.show({
+                                    title: 'Error',
+                                    msg: 'Update Data Gagal'
+                                });
+                            }
+                        },'json');
+                    }
+                });
+            }
+        }
+        else
+        {
+             $.messager.alert('Info','Data belum dipilih !','info');
+        }
+    }
+    
+    function transaksiPjkenDitolak(){
+        var row = $('#grid-transaksi_pjken').datagrid('getSelected');
+        if (row){
+            $.messager.prompt('Konfirmasi','Mengapa anda ingin Menolak Pinjam Kendaraan no. '+row.fpjken_id+' ?',function(r){
+                if (r){
+                    $.post('<?php echo site_url('transaksi/pjken/ditolak'); ?>',{fpjken_id:row.fpjken_id,fpjken_ditolak:transaksiPjkenUser,fpjken_keterangan:r},function(result){
+                        if (result.success){
+                            transaksiPjkenRefresh();
+                            $.messager.show({
+                                title: 'Info',
+                                msg: 'Hapus Data Berhasil'
+                            });
+                        } else {
+                            $.messager.show({
+                                title: 'Error',
+                                msg: 'Hapus Data Gagal'
+                            });
+                        }
+                    },'json');
+                }
+            });
+        }
+        else
+        {
+             $.messager.alert('Info','Data belum dipilih !','info');
+        }
+    }
     
     function transaksiPjkenCreate() {
         $('#dlg-transaksi_pjken').dialog({modal: true}).dialog('open').dialog('setTitle','Tambah Data');
         $('#fm-transaksi_pjken').form('clear');
         url = '<?php echo site_url('transaksi/pjken/create'); ?>';
-        //$('#nik').textbox({disabled: false});
     }
     
     function transaksiPjkenUpdate() {
@@ -129,7 +524,6 @@
             $('#dlg-transaksi_pjken').dialog({modal: true}).dialog('open').dialog('setTitle','Edit Data');
             $('#fm-transaksi_pjken').form('load',row);
             url = '<?php echo site_url('transaksi/pjken/update'); ?>/' + row.fpjken_id;
-            //$('#nik').textbox({disabled: true});
         }
         else
         {
@@ -147,7 +541,7 @@
                 var result = eval('('+result+')');
                 if(result.success){
                     $('#dlg-transaksi_pjken').dialog('close');
-                    $('#grid-transaksi_pjken').datagrid('reload');
+                    transaksiPjkenRefresh();
                     $.messager.show({
                         title: 'Info',
                         msg: 'Data Berhasil Disimpan'
@@ -169,7 +563,7 @@
                 if (r){
                     $.post('<?php echo site_url('transaksi/pjken/delete'); ?>',{fpjken_id:row.fpjken_id},function(result){
                         if (result.success){
-                            $('#grid-transaksi_pjken').datagrid('reload');
+                            transaksiPjkenRefresh();
                             $.messager.show({
                                 title: 'Info',
                                 msg: 'Hapus Data Berhasil'
@@ -226,15 +620,32 @@
         </div>
         <div class="fitem">
             <label for="type">Nama Karyawan</label>
-            <input type="text" id="fpjken_nik" name="fpjken_nik" style="width:200px;" class="easyui-combobox" required="true"
-                data-options="url:'<?php echo site_url('transaksi/pjken/getKaryawan'); ?>',
-                method:'get', valueField:'karyawan_nik', textField:'karyawan_nama', panelHeight:'300'" />
+            <input type="text" id="fpjken_nik" name="fpjken_nik" style="width:200px;" class="easyui-combogrid" required="true"
+                data-options="
+                    panelWidth: 500,
+                    idField: 'karyawan_nik',
+                    textField: 'karyawan_nama',
+                    url:'<?php echo site_url('transaksi/pjken/getKaryawan'); ?>',
+                    mode:'remote',
+                    fitColumns: true,
+                    columns: [[
+                        {field:'karyawan_nik',title:'NIK',width:50,align:'center'},
+                        {field:'karyawan_nama',title:'Nama',width:120,halign:'center'},
+                        {field:'c.departemen_nama',title:'Departemen',width:80,align:'center'},
+                        {field:'b.departemen_nama',title:'Bagian',width:80,align:'center'}
+                    ]],
+                    onSelect: function (rowIndex, rowData) {
+                        var g = $('#fpjken_nik').combogrid('grid');
+                        var r = g.datagrid('getSelected');
+                        $('#fpjken_bagian').combobox('setValue', r.karyawan_bagian);
+                    }
+            " />
         </div>
         <div class="fitem">
             <label for="type">Bagian</label>
-            <input type="text" id="fpjken_bagian" name="fpjken_bagian" style="width:200px;" class="easyui-combobox" required="true"
+            <input type="text" id="fpjken_bagian" name="fpjken_bagian" style="width:200px;" class="easyui-combobox"
                 data-options="url:'<?php echo site_url('transaksi/pjken/getDept'); ?>',
-                method:'get', valueField:'id', textField:'bagian', groupField:'departemen', panelHeight:'300'" />
+                method:'get', valueField:'id', textField:'bagian', groupField:'departemen', panelHeight:'300', readonly: true" />
         </div>
         <div class="fitem">
             <label for="type">Tanggal Pinjam</label>
@@ -242,11 +653,17 @@
         </div>
         <div class="fitem">
             <label for="type">No. Mobil</label>
-            <input type="text" id="fpjken_mobil" name="fpjken_mobil" class="easyui-textbox" required="true"/>
+            <input type="text" id="fpjken_mobil" name="fpjken_mobil" style="width:200px;" class="easyui-combobox" required="true"
+                data-options="url:'<?php echo site_url('transaksi/pjken/getMobil'); ?>',
+                method:'get', valueField:'mobil_no', textField:'mobil_no', panelHeight:'300'" />
         </div>
         <div class="fitem">
             <label for="type">Keperluan</label>
             <input type="text" id="fpjken_keperluan" name="fpjken_keperluan" style="width:350px;" class="easyui-textbox" required="true"/>
+        </div>
+        <div class="fitem">
+            <label for="type">Keterangan</label>
+            <input type="text" id="fpjken_keterangan" name="fpjken_keterangan" style="width:350px;" class="easyui-textbox"/>
         </div>
     </form>
 </div>

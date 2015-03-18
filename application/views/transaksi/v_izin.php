@@ -345,7 +345,24 @@
                 return 'background-color:#FFB6C1;color:#000;';
             }
 	}
-        }).datagrid('enableFilter');
+        }).datagrid('enableFilter', [{
+            field:'e.name',
+            type:'textbox',
+            op:['contains','is']
+        }, {
+            field:'f.name',
+            type:'textbox',
+            op:['contains','is']
+        }, {
+            field:'g.name',
+            type:'textbox',
+            op:['contains','is']
+        }, {
+            field:'h.name',
+            type:'textbox',
+            op:['contains','is']
+        }
+        ]);
     
     function transaksiIzinRefresh() {
         $('#izin_edit').linkbutton('disable');
@@ -651,7 +668,7 @@
         </div>
         <div class="fitem">
             <label for="type">Keterangan</label>
-            <input type="text" id="fizin_keterangan" name="fizin_keterangan" style="width:350px;" class="easyui-textbox" required="true"/>
+            <input type="text" id="fizin_keterangan" name="fizin_keterangan" style="width:350px;" class="easyui-textbox"/>
         </div>
     </form>
 </div>

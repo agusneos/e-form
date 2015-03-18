@@ -72,8 +72,7 @@ class Cuti extends CI_Controller {
         $fcuti_keterangan   = addslashes($_POST['fcuti_keterangan']);
         
         if($this->record->update($fcuti_id, $fcuti_tanggal, $fcuti_nik, $fcuti_bagian, 
-                                 $fcuti_dari, $fcuti_sampai, $fcuti_keperluan,
-                                 $fcuti_keterangan))
+                                 $fcuti_dari, $fcuti_sampai, $fcuti_keperluan, $fcuti_keterangan))
         {
             echo json_encode(array('success'=>true));
         }

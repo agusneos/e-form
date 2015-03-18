@@ -49,7 +49,9 @@ class M_izin extends CI_Model
                         $cond .= " and $field > $value";
                     } else if ($op == 'greaterorequal'){
                         $cond .= " and $field >= $value";
-                    } 
+                    } else if ($op == 'is'){
+                        $cond .= " and $field IS $value";
+                    }
                 }
             }
 	}
@@ -115,9 +117,9 @@ class M_izin extends CI_Model
         return json_encode($result);          
     }   
         
-    function create($fizin_tanggal, $fizin_nik, $fizin_bagian,
-                    $fizin_jenis, $fizin_dari, $fizin_sampai, $fizin_keperluan,
-                    $fizin_keterangan, $user_id)
+    function create($fizin_tanggal, $fizin_nik, $fizin_bagian, 
+                    $fizin_jenis, $fizin_dari, $fizin_sampai, 
+                    $fizin_keperluan, $fizin_keterangan, $user_id)
     {    
         return $this->db->insert(self::$table1,array(
             'fizin_tanggal'     => $fizin_tanggal,
@@ -132,9 +134,9 @@ class M_izin extends CI_Model
         ));
     }
     
-    function update($fizin_id, $fizin_tanggal, $fizin_nik, $fizin_bagian,
-                    $fizin_jenis, $fizin_dari, $fizin_sampai, $fizin_keperluan,
-                    $fizin_keterangan)
+    function update($fizin_id, $fizin_tanggal, $fizin_nik, $fizin_bagian, 
+                    $fizin_jenis, $fizin_dari, $fizin_sampai, 
+                    $fizin_keperluan, $fizin_keterangan)
     {
         $this->db->where('fizin_id', $fizin_id);
         return $this->db->update(self::$table1,array(
