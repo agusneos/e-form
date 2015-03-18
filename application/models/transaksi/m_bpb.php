@@ -78,10 +78,10 @@ class M_bpb extends CI_Model
         $this->db->join(self::$table3.' b', 'a.fbpb_bagian = b.departemen_id', 'left')
                  ->join(self::$table3.' c', 'b.departemen_induk = c.departemen_id', 'left')
                  ->join(self::$table2.' d', 'a.fbpb_nik = d.karyawan_nik', 'left')
-                 ->join(self::$table4.' e', 'a.fizin_disetujui = e.id', 'left')
-                 ->join(self::$table4.' f', 'a.fizin_diketahui = f.id', 'left')
-                 ->join(self::$table4.' g', 'a.fizin_ditolak = g.id', 'left')
-                 ->join(self::$table4.' h', 'a.fizin_pembuat = h.id', 'left');
+                 ->join(self::$table4.' e', 'a.fbpb_disetujui = e.id', 'left')
+                 ->join(self::$table4.' f', 'a.fbpb_diketahui = f.id', 'left')
+                 ->join(self::$table4.' g', 'a.fbpb_ditolak = g.id', 'left')
+                 ->join(self::$table4.' h', 'a.fbpb_pembuat = h.id', 'left');
         $this->db->where_in('b.departemen_induk', $aray_dept);
         $this->db->where($cond, NULL, FALSE);
         
@@ -94,10 +94,10 @@ class M_bpb extends CI_Model
         $this->db->join(self::$table3.' b', 'a.fbpb_bagian = b.departemen_id', 'left')
                  ->join(self::$table3.' c', 'b.departemen_induk = c.departemen_id', 'left')
                  ->join(self::$table2.' d', 'a.fbpb_nik = d.karyawan_nik', 'left')
-                 ->join(self::$table4.' e', 'a.fizin_disetujui = e.id', 'left')
-                 ->join(self::$table4.' f', 'a.fizin_diketahui = f.id', 'left')
-                 ->join(self::$table4.' g', 'a.fizin_ditolak = g.id', 'left')
-                 ->join(self::$table4.' h', 'a.fizin_pembuat = h.id', 'left');
+                 ->join(self::$table4.' e', 'a.fbpb_disetujui = e.id', 'left')
+                 ->join(self::$table4.' f', 'a.fbpb_diketahui = f.id', 'left')
+                 ->join(self::$table4.' g', 'a.fbpb_ditolak = g.id', 'left')
+                 ->join(self::$table4.' h', 'a.fbpb_pembuat = h.id', 'left');
         $this->db->where_in('b.departemen_induk', $aray_dept);
         $this->db->where($cond, NULL, FALSE);
         
@@ -191,7 +191,9 @@ class M_bpb extends CI_Model
                         $cond .= " and $field > $value";
                     } else if ($op == 'greaterorequal'){
                         $cond .= " and $field >= $value";
-                    } 
+                    } else if ($op == 'is'){
+                        $cond .= " and $field IS $value";
+                    }
                 }
             }
 	}
@@ -202,6 +204,7 @@ class M_bpb extends CI_Model
         
         $this->db->where($cond, NULL, FALSE)
                  ->where('fbpb_detail_header', $id);
+        
         $this->db->order_by($sort, $order);
         $this->db->limit($rows, $offset);
         $query  = $this->db->get(self::$table5);
@@ -323,28 +326,28 @@ class M_bpb extends CI_Model
         return json_encode($data);
     }
     
-    function disetujui($fizin_id, $fizin_disetujui)
+    function disetujui($fbpb_id, $fbpb_disetujui)
     {
-        $this->db->where('fizin_id', $fizin_id);
+        $this->db->where('fbpb_id', $fbpb_id);
         return $this->db->update(self::$table1,array(
-            'fizin_disetujui' => $fizin_disetujui
+            'fbpb_disetujui' => $fbpb_disetujui
         ));
     }
     
-    function diketahui($fizin_id, $fizin_diketahui)
+    function diketahui($fbpb_id, $fbpb_diketahui)
     {
-        $this->db->where('fizin_id', $fizin_id);
+        $this->db->where('fbpb_id', $fbpb_id);
         return $this->db->update(self::$table1,array(
-            'fizin_diketahui' => $fizin_diketahui
+            'fbpb_diketahui' => $fbpb_diketahui
         ));
     }
     
-    function ditolak($fizin_id, $fizin_ditolak, $fizin_keterangan)
+    function ditolak($fbpb_id, $fbpb_ditolak, $fbpb_keterangan)
     {
-        $this->db->where('fizin_id', $fizin_id);
+        $this->db->where('fbpb_id', $fbpb_id);
         return $this->db->update(self::$table1,array(
-            'fizin_ditolak'     => $fizin_ditolak,
-            'fizin_keterangan'  => $fizin_keterangan
+            'fbpb_ditolak'     => $fbpb_ditolak,
+            'fbpb_keterangan'  => $fbpb_keterangan
         ));
     }
 }

@@ -143,12 +143,54 @@
         url:'<?php echo site_url('transaksi/bpb/index'); ?>?grid=true'})        
         .datagrid({
 	onLoadSuccess: function(data){
-            transaksiBpbFirstLoad();
+            $('#bpb_edit').linkbutton('disable');
+            $('#bpb_delete').linkbutton('disable');
+            $('#bpb_disetujui').linkbutton({
+                text    : '',
+                iconCls : '',
+                disabled: true
+            });
+            $('#bpb_diketahui').linkbutton({
+                text    : '',
+                iconCls : '',
+                disabled: true
+            });
+            $('#bpb_ditolak').linkbutton({
+                text    : '',
+                iconCls : '',
+                disabled: true
+            });
+            $('#bpb_detail_new').linkbutton('disable');
+            $('#bpb_detail_edit').linkbutton('disable');
+            $('#bpb_detail_delete').linkbutton('disable');
+            $('#bpb_detail_refresh').linkbutton('disable');
         },
         onClickRow: function(index,row){
             
             if(row['g.name'] !== null){
-                transaksiBpbFirstLoad();
+                $('#bpb_edit').linkbutton('disable');
+                $('#bpb_delete').linkbutton('disable');
+                $('#bpb_disetujui').linkbutton({
+                    text    : '',
+                    iconCls : '',
+                    disabled: true
+                });
+                $('#bpb_diketahui').linkbutton({
+                    text    : '',
+                    iconCls : '',
+                    disabled: true
+                });
+                $('#bpb_ditolak').linkbutton({
+                    text    : '',
+                    iconCls : '',
+                    disabled: true
+                });
+                $('#bpb_detail_new').linkbutton('disable');
+                $('#bpb_detail_edit').linkbutton('disable');
+                $('#bpb_detail_delete').linkbutton('disable');
+                $('#bpb_detail_refresh').linkbutton('disable');
+                transaksiBpbNilai = row.fbpb_id;
+                $('#grid-transaksi_bpb_detail').datagrid('load','<?php echo site_url('transaksi/bpb/index_detail'); ?>?grid=true&nilai='+transaksiBpbNilai);
             }
             else {
                 if(row['e.name'] === null && row['f.name'] === null){                
@@ -158,7 +200,6 @@
                     $('#bpb_detail_refresh').linkbutton('enable');
                     transaksiBpbNilai = row.fbpb_id;
                     $('#grid-transaksi_bpb_detail').datagrid('load','<?php echo site_url('transaksi/bpb/index_detail'); ?>?grid=true&nilai='+transaksiBpbNilai);
-
                     $('#bpb_diketahui').linkbutton({
                         text    : '',
                         iconCls : '',
@@ -198,6 +239,13 @@
                         iconCls : '',
                         disabled: true
                     });
+                    $('#bpb_detail_new').linkbutton('disable');
+                    $('#bpb_detail_edit').linkbutton('disable');
+                    $('#bpb_detail_delete').linkbutton('disable');
+                    $('#bpb_detail_refresh').linkbutton('disable');
+                    transaksiBpbNilai = row.fbpb_id;
+                    $('#grid-transaksi_bpb_detail').datagrid('load','<?php echo site_url('transaksi/bpb/index_detail'); ?>?grid=true&nilai='+transaksiBpbNilai);
+                    
                     if(transaksiBpbSetuju && transaksiBpbTahu){
                         if(row.fbpb_disetujui == transaksiBpbUser){
                             $('#bpb_disetujui').linkbutton({
@@ -292,10 +340,16 @@
                         disabled: true
                     });
                     $('#bpb_ditolak').linkbutton({
-                            text    : '',
-                            iconCls : '',
-                            disabled: true
-                        });
+                        text    : '',
+                        iconCls : '',
+                        disabled: true
+                    });
+                    $('#bpb_detail_new').linkbutton('disable');
+                    $('#bpb_detail_edit').linkbutton('disable');
+                    $('#bpb_detail_delete').linkbutton('disable');
+                    $('#bpb_detail_refresh').linkbutton('disable');
+                    transaksiBpbNilai = row.fbpb_id;
+                    $('#grid-transaksi_bpb_detail').datagrid('load','<?php echo site_url('transaksi/bpb/index_detail'); ?>?grid=true&nilai='+transaksiBpbNilai);    
                     if(transaksiBpbTahu){
                         if(row.fbpb_diketahui == transaksiBpbUser){
                             $('#bpb_diketahui').linkbutton({
@@ -324,30 +378,44 @@
             }
 	},        
         onDblClickRow: function(index,row){
-            transaksiBpbUpdate();
+            if(row['e.name'] === null && row['g.name'] === null){
+                transaksiBpbUpdate();
+            }        
 	},
         onSortColumn: function(sort,order){
-            //transaksiBpbRefresh();
-            transaksiBpbFirstLoad()
+            transaksiBpbRefresh();
+        },
+        rowStyler: function(index,row){
+            if (row['e.name'] !== null && row['f.name'] !== null){
+                return 'background-color:#90EE90;color:#000;';
+            }
+            if (row['e.name'] !== null){
+                return 'background-color:#87CEFA;color:#000;';
+            }
+            if (row['g.name'] !== null){
+                return 'background-color:#FFB6C1;color:#000;';
+            }
+	}
+        }).datagrid('enableFilter', [{
+            field:'e.name',
+            type:'textbox',
+            op:['contains','is']
+        }, {
+            field:'f.name',
+            type:'textbox',
+            op:['contains','is']
+        }, {
+            field:'g.name',
+            type:'textbox',
+            op:['contains','is']
+        }, {
+            field:'h.name',
+            type:'textbox',
+            op:['contains','is']
         }
-        }).datagrid('enableFilter');
+        ]);
     
     function transaksiBpbRefresh() {
-        $('#bpb_edit').linkbutton('disable');
-        $('#bpb_delete').linkbutton('disable');
-        $('#bpb_detail_new').linkbutton('disable');
-        $('#bpb_detail_edit').linkbutton('disable');
-        $('#bpb_detail_delete').linkbutton('disable');
-        $('#bpb_detail_refresh').linkbutton('disable');
-            
-        $('#grid-transaksi_bpb').datagrid('reload');
-        transaksiBpbNilai=null;
-        $('#grid-transaksi_bpb_detail').datagrid('load','<?php echo site_url('transaksi/bpb/index_detail'); ?>?grid=true&nilai='+transaksiBpbNilai);
-        $('#grid-transaksi_bpb_detail').datagrid('reload');
-        
-    }
-    
-    function transaksiBpbFirstLoad() {
         $('#bpb_edit').linkbutton('disable');
         $('#bpb_delete').linkbutton('disable');
         $('#bpb_disetujui').linkbutton({
@@ -365,18 +433,150 @@
             iconCls : '',
             disabled: true
         });
+        $('#grid-transaksi_bpb').datagrid('reload');
+        
         $('#bpb_detail_new').linkbutton('disable');
         $('#bpb_detail_edit').linkbutton('disable');
         $('#bpb_detail_delete').linkbutton('disable');
         $('#bpb_detail_refresh').linkbutton('disable');
+        transaksiBpbNilai=null;
+        $('#grid-transaksi_bpb_detail').datagrid('load','<?php echo site_url('transaksi/bpb/index_detail'); ?>?grid=true&nilai='+transaksiBpbNilai);
+        $('#grid-transaksi_bpb_detail').datagrid('reload');
         
     }
     
+    function transaksiBpbDisetujui() {
+        var row = $('#grid-transaksi_bpb').datagrid('getSelected');
+        if (row){
+            if(transaksiBpbDataSetuju === 1){
+                $.messager.confirm('Konfirmasi','Anda yakin ingin Menyetujui bpb no. '+row.fbpb_id+' ?',function(r){
+                    if (r){
+                        $.post('<?php echo site_url('transaksi/bpb/disetujui'); ?>',{fbpb_id:row.fbpb_id,fbpb_disetujui:transaksiBpbUser},function(result){
+                            if (result.success){
+                                transaksiBpbRefresh();
+                                $.messager.show({
+                                    title: 'Info',
+                                    msg: 'Update Data Berhasil'
+                                });
+                            } else {
+                                $.messager.show({
+                                    title: 'Error',
+                                    msg: 'Update Data Gagal'
+                                });
+                            }
+                        },'json');
+                    }
+                });
+            }
+            else if(transaksiBpbDataSetuju === 0){
+                $.messager.confirm('Konfirmasi','Anda yakin ingin Batal Menyetujui bpb no. '+row.fbpb_id+' ?',function(r){
+                    if (r){
+                        $.post('<?php echo site_url('transaksi/bpb/disetujui'); ?>',{fbpb_id:row.fbpb_id,fbpb_disetujui:0},function(result){
+                            if (result.success){
+                                transaksiBpbRefresh();
+                                $.messager.show({
+                                    title: 'Info',
+                                    msg: 'Update Data Berhasil'
+                                });
+                            } else {
+                                $.messager.show({
+                                    title: 'Error',
+                                    msg: 'Update Data Gagal'
+                                });
+                            }
+                        },'json');
+                    }
+                });
+            }
+        }
+        else
+        {
+             $.messager.alert('Info','Data belum dipilih !','info');
+        }
+    }
+    
+    function transaksiBpbDiketahui() {
+        var row = $('#grid-transaksi_bpb').datagrid('getSelected');
+        if (row){
+            if(transaksiBpbDataTahu === 1){
+                $.messager.confirm('Konfirmasi','Anda yakin ingin Mengetahui bpb no. '+row.fbpb_id+' ?',function(r){
+                    if (r){
+                        $.post('<?php echo site_url('transaksi/bpb/diketahui'); ?>',{fbpb_id:row.fbpb_id,fbpb_diketahui:transaksiBpbUser},function(result){
+                            if (result.success){
+                                transaksiBpbRefresh();
+                                $.messager.show({
+                                    title: 'Info',
+                                    msg: 'Update Data Berhasil'
+                                });
+                            } else {
+                                $.messager.show({
+                                    title: 'Error',
+                                    msg: 'Update Data Gagal'
+                                });
+                            }
+                        },'json');
+                    }
+                });
+            }
+            else if(transaksiBpbDataTahu === 0){
+                $.messager.confirm('Konfirmasi','Anda yakin ingin Batal Mengetahui bpb no. '+row.fbpb_id+' ?',function(r){
+                    if (r){
+                        $.post('<?php echo site_url('transaksi/bpb/diketahui'); ?>',{fbpb_id:row.fbpb_id,fbpb_diketahui:0},function(result){
+                            if (result.success){
+                                transaksiBpbRefresh();
+                                $.messager.show({
+                                    title: 'Info',
+                                    msg: 'Update Data Berhasil'
+                                });
+                            } else {
+                                $.messager.show({
+                                    title: 'Error',
+                                    msg: 'Update Data Gagal'
+                                });
+                            }
+                        },'json');
+                    }
+                });
+            }
+        }
+        else
+        {
+             $.messager.alert('Info','Data belum dipilih !','info');
+        }
+    }
+    
+    function transaksiBpbDitolak(){
+        var row = $('#grid-transaksi_bpb').datagrid('getSelected');
+        if (row){
+            $.messager.prompt('Konfirmasi','Mengapa anda ingin Menolak bpb no. '+row.fbpb_id+' ?',function(r){
+                if (r){
+                    $.post('<?php echo site_url('transaksi/bpb/ditolak'); ?>',{fbpb_id:row.fbpb_id,fbpb_ditolak:transaksiBpbUser,fbpb_keterangan:r},function(result){
+                        if (result.success){
+                            transaksiBpbRefresh();
+                            $.messager.show({
+                                title: 'Info',
+                                msg: 'Hapus Data Berhasil'
+                            });
+                        } else {
+                            $.messager.show({
+                                title: 'Error',
+                                msg: 'Hapus Data Gagal'
+                            });
+                        }
+                    },'json');
+                }
+            });
+        }
+        else
+        {
+             $.messager.alert('Info','Data belum dipilih !','info');
+        }
+    }
+       
     function transaksiBpbCreate() {
         $('#dlg-transaksi_bpb').dialog({modal: true}).dialog('open').dialog('setTitle','Tambah Data');
         $('#fm-transaksi_bpb').form('clear');
         url = '<?php echo site_url('transaksi/bpb/create'); ?>';
-        //$('#nik').textbox({disabled: false});
     }
     
     function transaksiBpbUpdate() {
@@ -385,7 +585,6 @@
             $('#dlg-transaksi_bpb').dialog({modal: true}).dialog('open').dialog('setTitle','Edit Data');
             $('#fm-transaksi_bpb').form('load',row);
             url = '<?php echo site_url('transaksi/bpb/update'); ?>/' + row.fbpb_id;
-            //$('#nik').textbox({disabled: true});
         }
         else
         {
@@ -476,11 +675,21 @@
             $('#bpb_detail_delete').linkbutton('disable');
         },
         onClickRow: function(index,row){
-            $('#bpb_detail_edit').linkbutton('enable');
-            $('#bpb_detail_delete').linkbutton('enable');
+            var rowHeader = $('#grid-transaksi_bpb').datagrid('getSelected');
+            if(rowHeader['e.name'] === null && rowHeader['g.name'] === null){
+                $('#bpb_detail_edit').linkbutton('enable');
+                $('#bpb_detail_delete').linkbutton('enable');
+            }
+            else{
+                $('#bpb_detail_edit').linkbutton('disable');
+                $('#bpb_detail_delete').linkbutton('disable');
+            }            
         },
         onDblClickRow: function(index,row){
-            transaksiBpbDetailUpdate();
+            var rowHeader = $('#grid-transaksi_bpb').datagrid('getSelected');
+            if(rowHeader['e.name'] === null && rowHeader['g.name'] === null){
+                transaksiBpbDetailUpdate();
+            }            
 	}
         }).datagrid('enableFilter');
     
@@ -606,16 +815,37 @@
         </div>
         <div class="fitem">
             <label for="type">Nama Karyawan</label>
-            <input type="text" id="fbpb_nik" name="fbpb_nik" style="width:200px;" class="easyui-combobox" required="true"
-                data-options="url:'<?php echo site_url('transaksi/bpb/getKaryawan'); ?>',
-                method:'get', valueField:'karyawan_nik', textField:'karyawan_nama', panelHeight:'300'" />
+            <input type="text" id="fbpb_nik" name="fbpb_nik" style="width:200px;" class="easyui-combogrid" required="true"
+                data-options="
+                    panelWidth: 500,
+                    idField: 'karyawan_nik',
+                    textField: 'karyawan_nama',
+                    url:'<?php echo site_url('transaksi/bpb/getKaryawan'); ?>',
+                    mode:'remote',
+                    fitColumns: true,
+                    columns: [[
+                        {field:'karyawan_nik',title:'NIK',width:50,align:'center'},
+                        {field:'karyawan_nama',title:'Nama',width:120,halign:'center'},
+                        {field:'c.departemen_nama',title:'Departemen',width:80,align:'center'},
+                        {field:'b.departemen_nama',title:'Bagian',width:80,align:'center'}
+                    ]],
+                    onSelect: function (rowIndex, rowData) {
+                        var g = $('#fbpb_nik').combogrid('grid');
+                        var r = g.datagrid('getSelected');
+                        $('#fbpb_bagian').combobox('setValue', r.karyawan_bagian);
+                    }
+            " />
         </div>
         <div class="fitem">
             <label for="type">Bagian</label>
-            <input type="text" id="fbpb_bagian" name="fbpb_bagian" style="width:200px;" class="easyui-combobox" required="true"
+            <input type="text" id="fbpb_bagian" name="fbpb_bagian" style="width:200px;" class="easyui-combobox"
                 data-options="url:'<?php echo site_url('transaksi/bpb/getDept'); ?>',
-                method:'get', valueField:'id', textField:'bagian', groupField:'departemen', panelHeight:'300'" />
-        </div>        
+                method:'get', valueField:'id', textField:'bagian', groupField:'departemen', panelHeight:'300', readonly: true" />
+        </div>
+        <div class="fitem">
+            <label for="type">Keterangan</label>
+            <input type="text" id="fbpb_keterangan" name="fbpb_keterangan" style="width:350px;" class="easyui-textbox"/>
+        </div>
     </form>
 </div>
 
