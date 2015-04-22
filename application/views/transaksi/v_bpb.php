@@ -67,10 +67,10 @@
                     <th data-options="field:'ck',checkbox:true" ></th>
                     <th data-options="field:'fbpb_id'"              width="50"  halign="center" align="center" sortable="true" >ID</th>
                     <th data-options="field:'fbpb_tanggal'"         width="100" halign="center" align="center" sortable="true" >Tanggal</th>
-                    <th data-options="field:'d.karyawan_nama'"      width="150" halign="center" align="center" sortable="true" >Nama Karyawan</th>
+                    <th data-options="field:'d.karyawan_nama'"      width="150" halign="center" align="left"   sortable="true" >Nama Karyawan</th>
                     <th data-options="field:'c.departemen_nama'"    width="100" halign="center" align="center" sortable="true" >Departemen</th>
                     <th data-options="field:'b.departemen_nama'"    width="100" halign="center" align="center" sortable="true" >Bagian</th>
-                    <th data-options="field:'fbpb_keterangan'"      width="150" halign="center" align="center" sortable="true" >Keterangan</th>
+                    <th data-options="field:'fbpb_keterangan'"      width="150" halign="center" align="left"   sortable="true" >Keterangan</th>
                     <th data-options="field:'e.name'"               width="70"  halign="center" align="center" sortable="true" >Disetujui</th>
                     <th data-options="field:'f.name'"               width="70"  halign="center" align="center" sortable="true" >Diketahui</th>
                     <th data-options="field:'g.name'"               width="70"  halign="center" align="center" sortable="true" >Ditolak</th>
@@ -88,12 +88,13 @@
             <thead>
                 <tr>
                     <th data-options="field:'ck',checkbox:true" ></th>
-                    <th data-options="field:'fbpb_detail_barang'"       width="300" halign="center" align="center" sortable="true">Nama Barang</th>
-                    <th data-options="field:'fbpb_detail_qty'"          width="70" halign="center" align="center" sortable="true">Jumlah</th>
+                    <th data-options="field:'fbpb_detail_barang'"       width="300" halign="center" align="left"   sortable="true">Nama Barang</th>
+                    <th data-options="field:'fbpb_detail_qty'"          width="70"  halign="center" align="center" sortable="true">Jumlah</th>
+                    <th data-options="field:'fbpb_detail_satuan'"       width="100" halign="center" align="center" sortable="true">Satuan</th>
                     <th data-options="field:'fbpb_detail_digunakan'"    width="100" halign="center" align="center" sortable="true">Tgl Digunakan</th>
-                    <th data-options="field:'fbpb_detail_stock'"        width="50" halign="center" align="center" sortable="true">Stock</th>
-                    <th data-options="field:'fbpb_detail_pemakaian'"    width="70" halign="center" align="center" sortable="true">Pemakaian</th>
-                    <th data-options="field:'fbpb_detail_ket'"          width="300"  halign="center" align="center" sortable="true">Keterangan</th>
+                    <th data-options="field:'fbpb_detail_stock'"        width="50"  halign="center" align="center" sortable="true">Stock</th>
+                    <th data-options="field:'fbpb_detail_pemakaian'"    width="70"  halign="center" align="center" sortable="true">Pemakaian</th>
+                    <th data-options="field:'fbpb_detail_ket'"          width="300" halign="center" align="left"   sortable="true">Keterangan</th>
                     </tr>
             </thead>
         </table>
@@ -869,6 +870,10 @@
         <div class="fitem">
             <label for="type">Jumlah</label>
             <input type="text" id="fbpb_detail_qty" name="fbpb_detail_qty" style="width:100px;" class="easyui-numberbox" required="true"/>
+        </div>
+        <div class="fitem">
+            <label for="type">Satuan</label>
+            <input type="text" id="fbpb_detail_satuan" name="fbpb_detail_satuan" style="width:100px;" class="easyui-textbox" required="true"/>
         </div>
         <div class="fitem">
             <label for="type">Tgl. Digunakan</label>

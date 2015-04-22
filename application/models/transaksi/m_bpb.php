@@ -222,13 +222,14 @@ class M_bpb extends CI_Model
         return json_encode($result);          
     }
     
-    function detailCreate($fbpb_detail_header, $fbpb_detail_barang, $fbpb_detail_qty, $fbpb_detail_digunakan,
-                          $fbpb_detail_stock, $fbpb_detail_pemakaian, $fbpb_detail_ket)
+    function detailCreate($fbpb_detail_header, $fbpb_detail_barang, $fbpb_detail_qty, $fbpb_detail_satuan, 
+                                    $fbpb_detail_digunakan, $fbpb_detail_stock, $fbpb_detail_pemakaian, $fbpb_detail_ket)
     {    
         return $this->db->insert(self::$table5,array(
             'fbpb_detail_header'    => $fbpb_detail_header,
             'fbpb_detail_barang'    => $fbpb_detail_barang,
             'fbpb_detail_qty'       => $fbpb_detail_qty,
+            'fbpb_detail_satuan'    => $fbpb_detail_satuan,
             'fbpb_detail_digunakan' => $fbpb_detail_digunakan,
             'fbpb_detail_stock'     => $fbpb_detail_stock,
             'fbpb_detail_pemakaian' => $fbpb_detail_pemakaian,
@@ -236,14 +237,15 @@ class M_bpb extends CI_Model
         ));
     }
     
-    function detailUpdate($fbpb_detail_id, $fbpb_detail_header, $fbpb_detail_barang, $fbpb_detail_qty,
-                          $fbpb_detail_digunakan, $fbpb_detail_stock, $fbpb_detail_pemakaian, $fbpb_detail_ket)
+    function detailUpdate($fbpb_detail_id, $fbpb_detail_header, $fbpb_detail_barang, $fbpb_detail_qty, $fbpb_detail_satuan,
+                                 $fbpb_detail_digunakan, $fbpb_detail_stock, $fbpb_detail_pemakaian, $fbpb_detail_ket)
     {
         $this->db->where('fbpb_detail_id', $fbpb_detail_id);
         return $this->db->update(self::$table5,array(
             'fbpb_detail_header'    => $fbpb_detail_header,
             'fbpb_detail_barang'    => $fbpb_detail_barang,
             'fbpb_detail_qty'       => $fbpb_detail_qty,
+            'fbpb_detail_satuan'    => $fbpb_detail_satuan,
             'fbpb_detail_digunakan' => $fbpb_detail_digunakan,
             'fbpb_detail_stock'     => $fbpb_detail_stock,
             'fbpb_detail_pemakaian' => $fbpb_detail_pemakaian,

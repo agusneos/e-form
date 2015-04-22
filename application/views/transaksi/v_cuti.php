@@ -63,15 +63,15 @@
     <thead>
         <tr>
             <th data-options="field:'ck',checkbox:true" ></th>
-            <th data-options="field:'fcuti_id'"             width="50" halign="center" align="center" sortable="true">ID</th>
+            <th data-options="field:'fcuti_id'"             width="50"  halign="center" align="center" sortable="true">ID</th>
             <th data-options="field:'fcuti_tanggal'"        width="100" halign="center" align="center" sortable="true">Tanggal</th>
-            <th data-options="field:'d.karyawan_nama'"      width="150" halign="center" align="center" sortable="true">Nama Karyawan</th>
+            <th data-options="field:'d.karyawan_nama'"      width="150" halign="center" align="left"   sortable="true">Nama Karyawan</th>
             <th data-options="field:'c.departemen_nama'"    width="100" halign="center" align="center" sortable="true">Departemen</th>
             <th data-options="field:'b.departemen_nama'"    width="100" halign="center" align="center" sortable="true">Bagian</th>
             <th data-options="field:'fcuti_dari'"           width="100" halign="center" align="center" sortable="true">Dari</th>
             <th data-options="field:'fcuti_sampai'"         width="100" halign="center" align="center" sortable="true">Sampai</th>
-            <th data-options="field:'fcuti_keperluan'"      width="150" halign="center" align="center" sortable="true">Keperluan</th>
-            <th data-options="field:'fcuti_keterangan'"     width="150" halign="center" align="center" sortable="true" >Keterangan</th>
+            <th data-options="field:'fcuti_keperluan'"      width="150" halign="center" align="left"   sortable="true">Keperluan</th>
+            <th data-options="field:'fcuti_keterangan'"     width="150" halign="center" align="left"   sortable="true" >Keterangan</th>
             <th data-options="field:'e.name'"               width="70"  halign="center" align="center" sortable="true" >Disetujui</th>
             <th data-options="field:'f.name'"               width="70"  halign="center" align="center" sortable="true" >Diketahui</th>
             <th data-options="field:'g.name'"               width="70"  halign="center" align="center" sortable="true" >Ditolak</th>

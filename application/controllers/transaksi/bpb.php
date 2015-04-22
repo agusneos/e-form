@@ -124,13 +124,14 @@ class Bpb extends CI_Controller {
         $fbpb_detail_header     = intval(addslashes($_POST['fbpb_detail_header']));
         $fbpb_detail_barang     = addslashes($_POST['fbpb_detail_barang']);
         $fbpb_detail_qty        = addslashes($_POST['fbpb_detail_qty']);
+        $fbpb_detail_satuan     = addslashes($_POST['fbpb_detail_satuan']);
         $fbpb_detail_digunakan  = addslashes($_POST['fbpb_detail_digunakan']);
         $fbpb_detail_stock      = addslashes($_POST['fbpb_detail_stock']);
         $fbpb_detail_pemakaian  = addslashes($_POST['fbpb_detail_pemakaian']);
         $fbpb_detail_ket        = addslashes($_POST['fbpb_detail_ket']);
         
-        if($this->record->detailCreate($fbpb_detail_header, $fbpb_detail_barang, $fbpb_detail_qty, $fbpb_detail_digunakan,
-                                 $fbpb_detail_stock, $fbpb_detail_pemakaian, $fbpb_detail_ket))
+        if($this->record->detailCreate($fbpb_detail_header, $fbpb_detail_barang, $fbpb_detail_qty, $fbpb_detail_satuan, 
+                                    $fbpb_detail_digunakan, $fbpb_detail_stock, $fbpb_detail_pemakaian, $fbpb_detail_ket))
         {
             echo json_encode(array('success'=>true));
         }
@@ -151,12 +152,13 @@ class Bpb extends CI_Controller {
         $fbpb_detail_header     = intval(addslashes($_POST['fbpb_detail_header']));
         $fbpb_detail_barang     = addslashes($_POST['fbpb_detail_barang']);
         $fbpb_detail_qty        = addslashes($_POST['fbpb_detail_qty']);
+        $fbpb_detail_satuan     = addslashes($_POST['fbpb_detail_satuan']);
         $fbpb_detail_digunakan  = addslashes($_POST['fbpb_detail_digunakan']);
         $fbpb_detail_stock      = addslashes($_POST['fbpb_detail_stock']);
         $fbpb_detail_pemakaian  = addslashes($_POST['fbpb_detail_pemakaian']);
         $fbpb_detail_ket        = addslashes($_POST['fbpb_detail_ket']);
         
-        if($this->record->detailUpdate($fbpb_detail_id, $fbpb_detail_header, $fbpb_detail_barang, $fbpb_detail_qty,
+        if($this->record->detailUpdate($fbpb_detail_id, $fbpb_detail_header, $fbpb_detail_barang, $fbpb_detail_qty, $fbpb_detail_satuan,
                                  $fbpb_detail_digunakan, $fbpb_detail_stock, $fbpb_detail_pemakaian, $fbpb_detail_ket))
         {
             echo json_encode(array('success'=>true));
